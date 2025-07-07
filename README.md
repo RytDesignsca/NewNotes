@@ -2,123 +2,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>New Notes</title>
-
-  <!-- Fonts -->
+  <title>NewNotes</title>
+  <!-- Inter font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-auth.js"></script>
-
   <style>
-    /* Palette & Base */
     :root {
-      --bg: #FFFBDE;
+      --bg: #F5E7DE;
       --text: #333;
       --header-bg: #4682A9;
       --accent: #91C8E4;
       --border: #749BC2;
       --card-bg: #fff;
-      --font-family: 'Inter', sans-serif;
+      --font: 'Inter', sans-serif;
     }
-    body.dark-mode {
-      --bg: #333;
-      --text: #eee;
-      --header-bg: #222;
-      --accent: #91C8E4;
-      --border: #555;
-      --card-bg: #444;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      display: flex; height: 100vh;
-      font-family: var(--font-family);
+      margin: 0; padding: 0;
+      font-family: var(--font);
       background: var(--bg);
       color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
     /* Sidebar */
     .sidebar {
-      width: 200px;
+      width: 240px;
       background: var(--card-bg);
       border-right: 1px solid var(--border);
       padding: 1rem;
-      display: flex;
-      flex-direction: column;
+      box-sizing: border-box;
     }
-    .sidebar .logo {
-      text-align: center;
-      margin-bottom: 2rem;
-      font-size: 1.25rem;
-      font-weight: 600;
+    .sidebar h2 {
+      margin-bottom: 1.5rem;
       color: var(--header-bg);
+      font-size: 1.25rem;
     }
-    .nav-list { list-style: none; flex: 1; }
-    .nav-list li {
-      padding: .5rem 1rem;
-      border-radius: 4px;
+    .sidebar ul {
+      list-style: none; padding: 0;
+    }
+    .sidebar li {
+      margin: .75rem 0;
       cursor: pointer;
+      padding: .5rem;
+      border-radius: 4px;
       transition: background .2s;
     }
-    .nav-list li.active,
-    .nav-list li:hover {
-      background: var(--header-bg);
+    .sidebar li:hover,
+    .sidebar li.active {
+      background: var(--accent);
       color: #fff;
     }
     .sidebar label {
-      margin-top: 1rem;
-      font-size: .9rem;
       display: flex;
       align-items: center;
+      margin-top: 2rem;
+      font-size: .9rem;
     }
     .sidebar input { margin-right: .5rem; }
 
-    /* Main container */
-    .main-container {
+    /* Main area */
+    .main {
       flex: 1;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
-
     /* Topbar */
     .topbar {
       background: var(--header-bg);
       color: #fff;
+      padding: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem;
-      position: relative;
     }
-    .controls * { margin-left: .5rem; }
-    button {
+    .topbar .controls > * {
+      margin-left: .5rem;
+    }
+    .topbar button,
+    .topbar select {
       border: none;
       border-radius: 4px;
+      font-size: .9rem;
+      padding: .5rem .75rem;
       cursor: pointer;
     }
-    #new-btn, #settings-btn, #login-btn {
+    .topbar button {
       background: var(--accent);
       color: #fff;
-      padding: .5rem .75rem;
-      font-size: .9rem;
     }
-    #sort-select {
-      padding: .4rem;
-      border-radius: 4px;
-      border: 1px solid #888;
+    .topbar select {
       background: #fff;
       color: #000;
+      border: 1px solid #888;
     }
 
-    /* Content */
+    /* Login panel */
+    #login-panel {
+      position: absolute;
+      top: 72px;
+      right: 1rem;
+      width: 260px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 100;
+    }
+    #login-panel h2 {
+      font-size: 1rem;
+      margin-bottom: .75rem;
+      color: var(--header-bg);
+    }
+    #login-panel input {
+      width: 100%;
+      padding: .4rem;
+      margin-bottom: .75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: .9rem;
+    }
+    #login-panel button {
+      width: 100%;
+      padding: .5rem;
+      margin-bottom: .5rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: .9rem;
+    }
+
+    /* Content area */
     main {
       flex: 1;
       overflow-y: auto;
       padding: 1rem;
-      position: relative;
     }
     section + hr {
       margin: 2rem 0;
@@ -143,6 +167,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      cursor: default;
       transition: box-shadow .2s, border-color .2s;
     }
     .notebook-card:hover {
@@ -150,16 +175,6 @@
       border-color: var(--accent);
     }
     .notebook-cover { font-size: 3rem; text-align: center; }
-    .star {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      font-size: 1.2rem;
-      color: #ccc;
-      cursor: pointer;
-      transition: color .2s;
-    }
-    .star.active { color: gold; }
     .notebook-details { text-align: center; }
     .notebook-title {
       font-weight: 600;
@@ -183,6 +198,8 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      border: none;
+      cursor: pointer;
     }
 
     /* Templates */
@@ -204,7 +221,7 @@
       transform: translateY(-3px);
     }
 
-    /* Tables */
+    /* Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -216,112 +233,6 @@
     }
     th { background: var(--card-bg); }
 
-    /* Context Menu */
-    .context-menu {
-      position: absolute;
-      display: none;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      z-index: 1000;
-    }
-    .context-menu ul { list-style: none; margin: 0; padding: .5rem 0; }
-    .context-menu li {
-      padding: .5rem 1.5rem;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .context-menu li:hover { background: var(--accent); color: #fff; }
-
-    /* Settings Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-    .modal .content {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 8px;
-      width: 320px;
-      position: relative;
-      text-align: left;
-    }
-    .modal .close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #666;
-    }
-    .profile {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .avatar {
-      font-size: 2rem;
-      margin-right: .75rem;
-    }
-    .profile-info .name {
-      font-weight: 600;
-      margin-bottom: .25rem;
-    }
-    .profile-info .email {
-      font-size: .85rem;
-      color: #666;
-    }
-    .settings-menu { list-style: none; padding: 0; margin: 0; }
-    .settings-menu li {
-      padding: .75rem 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .settings-menu li:hover { background: var(--accent); color: #fff; }
-
-    /* Login Panel (top right) */
-    #login-panel {
-      position: absolute;
-      top: 60px;
-      right: 1rem;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      width: 260px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: none;
-      z-index: 1500;
-    }
-    #login-panel h2 {
-      margin-bottom: .5rem;
-      font-size: 1rem;
-      color: var(--header-bg);
-    }
-    #login-panel input {
-      width: 100%;
-      padding: .4rem;
-      margin-bottom: .75rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    #login-panel button {
-      width: 100%;
-      padding: .5rem;
-      margin-bottom: .5rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
     /* Footer */
     footer {
       text-align: center;
@@ -332,11 +243,9 @@
   </style>
 </head>
 <body>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h2 class="logo">New Notes</h2>
-    <ul class="nav-list">
+  <div class="sidebar">
+    <h2>NewNotes</h2>
+    <ul>
       <li class="active">Documents</li>
       <li>Favorites</li>
       <li>Shared</li>
@@ -344,10 +253,9 @@
       <li>Trash</li>
     </ul>
     <label><input type="checkbox" id="theme-switch"> Dark Mode</label>
-  </aside>
+  </div>
 
-  <div class="main-container">
-    <!-- Topbar -->
+  <div class="main">
     <header class="topbar">
       <h1>Documents</h1>
       <div class="controls">
@@ -356,12 +264,11 @@
           <option value="date">Sort by Date</option>
           <option value="name">Sort by Name</option>
         </select>
-        <button id="settings-btn">⚙️</button>
         <button id="login-btn">Login</button>
       </div>
     </header>
 
-    <!-- Login Panel -->
+    <!-- Login Panel (top right) -->
     <div id="login-panel">
       <h2>Login / Sign Up</h2>
       <input type="email" id="auth-email" placeholder="Email">
@@ -372,223 +279,116 @@
     </div>
 
     <main>
-      <!-- Notebooks Section -->
       <section id="notebooks">
         <h2>My Notebooks</h2>
         <div id="notebook-list"></div>
         <button id="create-notebook-btn" class="fab">➕</button>
       </section>
-
       <hr>
-
-      <!-- Template Gallery -->
       <section id="templates">
         <h2>Popular Template Categories</h2>
         <div class="cards">
-          <div class="card"><h3>Daily & Weekly Planners</h3><p>Structure with time blocks, goals, and to-dos.</p></div>
+          <div class="card"><h3>Daily &amp; Weekly Planners</h3><p>Time blocks, goals, to-dos.</p></div>
           <div class="card"><h3>Bullet Journals</h3><p>Habit tracking, mood logs, reflections.</p></div>
-          <div class="card"><h3>Study & Cornell Notes</h3><p>Cue columns, summaries, review sections.</p></div>
-          <div class="card"><h3>Budget & Finance Trackers</h3><p>Income, expenses, savings goals, overviews.</p></div>
-          <div class="card"><h3>Meal & Fitness Planners</h3><p>Plan meals, workouts, track progress visually.</p></div>
-          <div class="card"><h3>Dot Grid & Lined Paper</h3><p>Freeform notes, sketches, structured writing.</p></div>
+          <div class="card"><h3>Study &amp; Cornell Notes</h3><p>Cue columns, summaries, review.</p></div>
+          <div class="card"><h3>Budget &amp; Finance</h3><p>Income, expenses, savings goals.</p></div>
+          <div class="card"><h3>Meal &amp; Fitness</h3><p>Plan meals, workouts, track progress.</p></div>
+          <div class="card"><h3>Dot Grid &amp; Lined</h3><p>Freeform notes, sketches.</p></div>
         </div>
-
         <h2>Where to Find Templates</h2>
         <table>
           <thead><tr><th>Source</th><th>Highlights</th></tr></thead>
           <tbody>
-            <tr><td><a href="https://gridfiti.com/goodnotes-templates/" target="_blank">Gridfiti’s Notability Templates</a></td>
-                <td>Aesthetic planners, journals, calendars—GoodNotes-ready</td></tr>
-            <tr><td><a href="https://rigorousthemes.com/free-goodnotes-templates/" target="_blank">Rigorous Themes’ Free Templates</a></td>
-                <td>Cornell notes, budget trackers, habit logs</td></tr>
-            <tr><td><a href="https://flexcil.com/templates/" target="_blank">Flexcil’s Roundup</a></td>
-                <td>Links to Kraftora, Dash Planner, IHeart Organizing</td></tr>
+            <tr><td><a href="https://gridfiti.com/goodnotes-templates/" target="_blank">Gridfiti’s Templates</a></td><td>Aesthetic planners, journals.</td></tr>
+            <tr><td><a href="https://rigorousthemes.com/free-goodnotes-templates/" target="_blank">Rigorous Templates</a></td><td>Cornell notes, trackers.</td></tr>
+            <tr><td><a href="https://flexcil.com/templates/" target="_blank">Flexcil Roundup</a></td><td>Kraftora, Dash, IHeart Org.</td></tr>
           </tbody>
         </table>
       </section>
     </main>
 
-    <footer>&copy; 2025 New Notes. All rights reserved.</footer>
-  </div>
-
-  <!-- Context Menu -->
-  <div id="ctx-menu" class="context-menu">
-    <ul>
-      <li id="ctx-rename">Rename</li>
-      <li id="ctx-duplicate">Duplicate</li>
-      <li id="ctx-export">Export as PDF</li>
-      <li id="ctx-share">Share link</li>
-      <li id="ctx-delete">Move to Trash</li>
-    </ul>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settings-modal" class="modal">
-    <div class="content">
-      <span class="close" id="settings-close">&times;</span>
-      <div class="profile">
-        <div class="avatar">👤</div>
-        <div class="profile-info">
-          <div class="name" id="user-name">Guest</div>
-          <div class="email" id="user-email">Not signed in</div>
-        </div>
-      </div>
-      <ul class="settings-menu">
-        <li id="delete-account">Delete Account</li>
-        <li>Manage Notebook Templates</li>
-        <li>Settings</li>
-        <li>Help</li>
-        <li>About</li>
-      </ul>
-    </div>
+    <footer>&copy; 2025 NewNotes. All rights reserved.</footer>
   </div>
 
   <script>
     // Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
-      authDomain: "your-project-id.firebaseapp.com",
-      projectId: "your-project-id"
+      authDomain: "newnotes-6942f.firebaseapp.com",
+      projectId: "newnotes-6942f"
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Elements
-    const themeSwitch = document.getElementById('theme-switch');
-    const sm = document.getElementById('settings-modal');
-    const lm = document.getElementById('login-panel');
-    const loginBtn = document.getElementById('login-btn');
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsClose = document.getElementById('settings-close');
-    const deleteAccountBtn = document.getElementById('delete-account');
-    const authSignup = document.getElementById('auth-signup');
-    const authLogin = document.getElementById('auth-login');
-    const authDelete = document.getElementById('auth-delete');
-
     // Theme toggle
-    themeSwitch.addEventListener('change', () =>
-      document.body.classList.toggle('dark-mode')
-    );
-
-    // Settings modal
-    settingsBtn.onclick = () => sm.style.display = 'flex';
-    settingsClose.onclick = () => sm.style.display = 'none';
-    window.addEventListener('click', e => { if (e.target === sm) sm.style.display = 'none'; });
+    document.getElementById('theme-switch')
+      .addEventListener('change', e => document.body.classList.toggle('dark-mode'));
 
     // Login panel toggle
-    loginBtn.onclick = () => lm.style.display = lm.style.display === 'flex' ? 'none' : 'flex';
+    const loginPanel = document.getElementById('login-panel');
+    document.getElementById('login-btn').onclick = () =>
+      loginPanel.style.display = loginPanel.style.display === 'flex' ? 'none' : 'flex';
     window.addEventListener('click', e => {
-      if (!lm.contains(e.target) && e.target !== loginBtn) {
-        lm.style.display = 'none';
+      if (!loginPanel.contains(e.target) && e.target.id !== 'login-btn') {
+        loginPanel.style.display = 'none';
       }
     });
 
-    // Auth state listener
-    auth.onAuthStateChanged(user => {
-      document.getElementById('user-name').textContent = user ? (user.displayName || user.email) : 'Guest';
-      document.getElementById('user-email').textContent = user ? user.email : 'Not signed in';
-    });
-
-    // Sign Up
-    authSignup.onclick = () => {
+    // Auth handlers
+    document.getElementById('auth-signup').onclick = () => {
       const email = document.getElementById('auth-email').value;
-      const pass = document.getElementById('auth-password').value;
+      const pass  = document.getElementById('auth-password').value;
       auth.createUserWithEmailAndPassword(email, pass)
-        .then(() => alert('Signed up successfully!'))
-        .catch(e => alert('Error: ' + e.message));
+        .then(() => alert('Signed up!'))
+        .catch(err => alert(err.message));
     };
-
-    // Log In
-    authLogin.onclick = () => {
+    document.getElementById('auth-login').onclick = () => {
       const email = document.getElementById('auth-email').value;
-      const pass = document.getElementById('auth-password').value;
+      const pass  = document.getElementById('auth-password').value;
       auth.signInWithEmailAndPassword(email, pass)
-        .then(() => alert('Logged in successfully!'))
-        .catch(e => alert('Error: ' + e.message));
+        .then(() => alert('Logged in!'))
+        .catch(err => alert(err.message));
     };
-
-    // Delete Account (from login panel)
-    authDelete.onclick = () => {
+    document.getElementById('auth-delete').onclick = () => {
       const user = auth.currentUser;
-      if (!user) return alert('No user signed in.');
+      if (!user) return alert('Not signed in');
       user.delete()
-        .then(() => alert('Account deleted.'))
-        .catch(e => alert('Error: ' + e.message));
+        .then(() => alert('Account deleted'))
+        .catch(err => alert(err.message));
     };
 
-    // Context menu & notebook logic
-    let notebookCount = 0, ctxTarget = null;
-    const menu = document.getElementById('ctx-menu');
-
-    function fmtDate(d = new Date()) {
-      return d.toLocaleString('en-US', {
-        month:'short',day:'numeric',year:'numeric',
-        hour:'numeric',minute:'2-digit'
-      });
+    // Notebook UI
+    let notebookCount = 0;
+    function fmtDate(d=new Date()){
+      return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',
+        hour:'numeric',minute:'2-digit'});
     }
-
-    function addNotebook({ title, cover = '📓', meta } = {}) {
+    function addNotebook({title,cover='📓',meta}={}) {
       notebookCount++;
       const list = document.getElementById('notebook-list');
       const card = document.createElement('div');
       card.className = 'notebook-card';
       card.innerHTML = `
-        <div class="star">☆</div>
         <div class="notebook-cover">${cover}</div>
         <div class="notebook-details">
           <div class="notebook-title">${title||'Untitled '+notebookCount}</div>
           <div class="notebook-date">${meta||fmtDate()}</div>
         </div>`;
-      card.querySelector('.star').onclick = e => {
-        const s = e.target; s.classList.toggle('active');
-        s.textContent = s.classList.contains('active')?'★':'☆';
-      };
-      const ttl = card.querySelector('.notebook-title');
-      ttl.ondblclick = () => {
-        const n = prompt('New name:', ttl.textContent);
-        if (n) ttl.textContent = n;
-      };
-      card.oncontextmenu = e => {
-        e.preventDefault();
-        ctxTarget = card;
-        menu.style.top = e.clientY + 'px';
-        menu.style.left = e.clientX + 'px';
-        menu.style.display = 'block';
-      };
+      // rename on double-click
+      card.querySelector('.notebook-title')
+        .ondblclick = e => {
+          const n = prompt('New name:', e.target.textContent);
+          if (n) e.target.textContent = n;
+        };
       list.appendChild(card);
-      card.scrollIntoView({ behavior: 'smooth' });
+      card.scrollIntoView({behavior:'smooth'});
     }
-
-    // Initialize sample
-    addNotebook({ title: 'Science', cover: '📘', meta: 'Jul 4, 2025 4:14 PM' });
-    document.getElementById('new-btn').onclick = () => addNotebook();
-    document.getElementById('create-notebook-btn').onclick = () => addNotebook();
-
-    // Hide context menu on click
-    window.addEventListener('click', () => menu.style.display = 'none');
-
-    // Context menu actions
-    document.getElementById('ctx-rename').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title');
-      const n = prompt('Rename:', ttl.textContent);
-      if (n) ttl.textContent = n;
-    };
-    document.getElementById('ctx-duplicate').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title').textContent;
-      const cv = ctxTarget.querySelector('.notebook-cover').textContent;
-      addNotebook({ title: ttl, cover: cv });
-    };
-    document.getElementById('ctx-export').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title').textContent;
-      alert(`(Stub) Exported "${ttl}" as PDF`);
-    };
-    document.getElementById('ctx-share').onclick = () => {
-      const e = prompt('Share with email:');
-      if (e) alert(`(Stub) Shared with ${e}`);
-    };
-    document.getElementById('ctx-delete').onclick = () => {
-      if (confirm('Move to Trash?')) ctxTarget.remove();
-    };
+    // init sample
+    addNotebook({title:'Science',cover:'📘',meta:'Jul 4, 2025 4:14 PM'});
+    document.getElementById('new-btn')
+      .onclick = ()=> addNotebook();
+    document.getElementById('create-notebook-btn')
+      .onclick = ()=> addNotebook();
   </script>
 </body>
 </html>
