@@ -921,7 +921,7 @@
       deleteUser
     } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
 
-    // Firebase config
+    // Firebase config (keep single initialization)
     const firebaseConfig = {
       apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
       authDomain: "newnotes-6942f.firebaseapp.com",
@@ -995,27 +995,13 @@
 
     function saveNotebooks() {
       localStorage.setItem('notebooks', JSON.stringify(notebooks));
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    }
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
-  authDomain: "newnotes-6942f.firebaseapp.com",
-  projectId: "newnotes-6942f",
-  storageBucket: "newnotes-6942f.firebasestorage.app",
-  messagingSenderId: "108980754671",
-  appId: "1:108980754671:web:f584d61feffc9e438aa31a",
-  measurementId: "G-P8KVQS62FB"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);= `
+    function addNotebookCard(notebook) {
+      const notebookGrid = document.getElementById('notebook-grid');
+      const card = document.createElement('div');
+      card.className = 'notebook-card';
+      card.innerHTML = `
         <div class="notebook-icon">${notebook.emoji}</div>
         <div class="notebook-title">${notebook.title}</div>
         <div class="notebook-meta">📅 ${notebook.date}</div>
@@ -1026,7 +1012,7 @@ const analytics = getAnalytics(app);= `
         </div>
       `;
 
-      // Open note on click
+      // Open note on click (except when clicking action buttons)
       card.addEventListener('click', (e) => {
         if (!e.target.classList.contains('action-btn')) {
           openNote(notebook.id);
@@ -1179,8 +1165,8 @@ const analytics = getAnalytics(app);= `
       const userEmail = document.getElementById('user-email');
       
       if (user) {
-        userName.textContent = user.displayName || user.email.split('@')[0];
-        userEmail.textContent = user.email;
+        userName.textContent = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        userEmail.textContent = user.email || '';
         loginBtn.textContent = '⚙️ Settings';
         loginBtn.onclick = () => settingsModal.style.display = 'flex';
       } else {
@@ -1251,10 +1237,14 @@ const analytics = getAnalytics(app);= `
           const password = prompt('🔒 Re-enter your password:');
           if (email && password) {
             const credential = EmailAuthProvider.credential(email, password);
-            await reauthenticateWithCredential(auth.currentUser, credential);
-            await deleteUser(auth.currentUser);
-            alert('✅ Account deleted successfully');
-            settingsModal.style.display = 'none';
+            try {
+              await reauthenticateWithCredential(auth.currentUser, credential);
+              await deleteUser(auth.currentUser);
+              alert('✅ Account deleted successfully');
+              settingsModal.style.display = 'none';
+            } catch (reauthErr) {
+              alert('❌ Re-authentication failed: ' + reauthErr.message);
+            }
           }
         } else {
           alert('❌ Error: ' + error.message);
