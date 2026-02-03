@@ -995,14 +995,27 @@
 
     function saveNotebooks() {
       localStorage.setItem('notebooks', JSON.stringify(notebooks));
-    }
+   // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-    function addNotebookCard(notebook) {
-      const notebookGrid = document.getElementById('notebook-grid');
-      const card = document.createElement('div');
-      card.className = 'notebook-card';
-      card.dataset.noteId = notebook.id;
-      card.innerHTML = `
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
+  authDomain: "newnotes-6942f.firebaseapp.com",
+  projectId: "newnotes-6942f",
+  storageBucket: "newnotes-6942f.firebasestorage.app",
+  messagingSenderId: "108980754671",
+  appId: "1:108980754671:web:f584d61feffc9e438aa31a",
+  measurementId: "G-P8KVQS62FB"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);= `
         <div class="notebook-icon">${notebook.emoji}</div>
         <div class="notebook-title">${notebook.title}</div>
         <div class="notebook-meta">📅 ${notebook.date}</div>
