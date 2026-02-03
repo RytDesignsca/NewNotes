@@ -2,351 +2,907 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>New Notes</title>
-  <!-- Inter + other UI fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>✨ My Cute Notes ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #FFFBDE;
-      --text: #333;
-      --header-bg: #4682A9;
-      --accent: #91C8E4;
-      --border: #749BC2;
-      --card-bg: #fff;
-      --font-family: 'Inter', sans-serif;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg-light: #f8f9ff;
+      --text: #2d3748;
+      --card-bg: #ffffff;
+      --accent-pink: #ff6b9d;
+      --accent-blue: #4facfe;
+      --accent-yellow: #feca57;
+      --accent-green: #1dd1a1;
+      --accent-purple: #a29bfe;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --font-main: 'Quicksand', sans-serif;
+      --font-accent: 'Poppins', sans-serif;
     }
+    
     body.dark-mode {
-      --bg: #333;
+      --bg-light: #1a1a2e;
       --text: #eee;
-      --header-bg: #222;
-      --accent: #91C8E4;
-      --border: #555;
-      --card-bg: #444;
+      --card-bg: #16213e;
+      --shadow: rgba(0, 0, 0, 0.3);
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      display:flex; height:100vh;
-      background:var(--bg); color:var(--text);
-      font-family: var(--font-family);
+      font-family: var(--font-main);
+      background: var(--bg-light);
+      color: var(--text);
+      min-height: 100vh;
+      transition: all 0.3s ease;
     }
-    a { color: var(--accent); text-decoration:none; }
-    a:hover { text-decoration:underline; }
-
-    /* Sidebar */
-    .sidebar {
-      width:200px; background:var(--card-bg);
-      border-right:1px solid var(--border);
-      display:flex; flex-direction:column; padding:1rem;
+    
+    /* Cute Header */
+    .header {
+      background: var(--bg-gradient);
+      padding: 1.5rem 2rem;
+      color: white;
+      box-shadow: 0 4px 20px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
     .logo {
-      font-weight:600; font-size:1.25rem;
-      color:var(--header-bg); text-align:center;
-      margin-bottom:2rem;
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: var(--font-accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
     }
-    .nav-list { list-style:none; flex:1; }
-    .nav-list li {
-      padding:.5rem 1rem; border-radius:4px;
-      cursor:pointer; transition:background .2s;
+    
+    .logo-emoji {
+      animation: bounce 2s infinite;
     }
-    .nav-list li.active,
-    .nav-list li:hover { background:var(--header-bg); color:#fff; }
-    .sidebar label {
-      margin-top:1rem; font-size:.9rem;
-      display:flex; align-items:center;
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
-    .sidebar input { margin-right:.5rem; }
+    
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-family: var(--font-main);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-primary {
+      background: var(--accent-pink);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: var(--accent-blue);
+    }
 
-    /* Main */
-    .main-container { flex:1; display:flex; flex-direction:column; }
-    .topbar {
-      background:var(--header-bg); color:#fff;
-      display:flex; justify-content:space-between;
-      align-items:center; padding:1rem;
+    .btn-success {
+      background: var(--accent-green);
+      color: white;
     }
-    .controls * { margin-left:.5rem; }
-    button {
-      border:none; border-radius:4px; cursor:pointer;
+    
+    .theme-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
-    #new-btn, #login-btn, #settings-btn {
-      background:var(--accent); color:#fff;
-      padding:.5rem .75rem; font-size:.9rem;
+    
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
-    #sort-select {
-      padding:.4rem; border-radius:4px; border:1px solid #888;
-      background:#fff; color:#000;
+    
+    /* Main Content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
     }
-
-    /* Content */
-    main {
-      flex:1; overflow-y:auto; padding:1rem; position:relative;
+    
+    /* Tab Navigation */
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
     }
-    section + hr {
-      margin:2rem 0; border:none; border-top:1px solid var(--border);
+    
+    .tab {
+      padding: 1rem 2rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 10px var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-
-    /* Notebooks */
-    #notebook-list {
-      display:flex; flex-wrap:wrap; gap:1rem;
+    
+    .tab:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 20px var(--shadow);
     }
+    
+    .tab.active {
+      background: var(--bg-gradient);
+      color: white;
+    }
+    
+    /* Notebook Grid */
+    .notebook-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
     .notebook-card {
-      position:relative; width:150px; height:180px;
-      background:var(--card-bg); border:1px solid var(--border);
-      border-radius:8px; padding:.5rem;
-      display:flex; flex-direction:column; justify-content:space-between;
-      transition:box-shadow .2s, border-color .2s;
+      background: var(--card-bg);
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px var(--shadow);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .notebook-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--bg-gradient);
+    }
+    
     .notebook-card:hover {
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      border-color:var(--accent);
+      transform: translateY(-8px) rotate(-1deg);
+      box-shadow: 0 8px 30px var(--shadow);
     }
-    .notebook-cover { font-size:3rem; text-align:center; }
-    .star {
-      position:absolute; top:8px; right:8px;
-      font-size:1.2rem; color:#ccc; cursor:pointer;
-      transition:color .2s;
+    
+    .notebook-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
-    .star.active { color:gold; }
-    .notebook-details { text-align:center; }
+    
     .notebook-title {
-      font-weight:600; cursor:text;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: var(--text);
     }
-    .notebook-date {
-      font-size:.75rem; color:#666;
+    
+    .notebook-meta {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #718096;
+      margin-bottom: 1rem;
     }
-    .fab {
-      position:absolute; bottom:1.5rem; right:1.5rem;
-      width:48px; height:48px; border-radius:50%;
-      background:var(--accent); color:#fff;
-      font-size:1.5rem; display:flex;
-      align-items:center; justify-content:center;
-      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    
+    .notebook-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
-
-    /* Templates */
-    .cards {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-      gap:1rem; margin-bottom:1.5rem;
+    
+    .action-btn {
+      padding: 0.5rem;
+      background: var(--bg-light);
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .card {
-      background:var(--card-bg); border:1px solid var(--border);
-      border-radius:8px; padding:1rem;
-      transition:transform .2s, box-shadow .2s;
+    
+    .action-btn:hover {
+      transform: scale(1.15);
+      background: var(--accent-purple);
     }
-    .card:hover {
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      transform:translateY(-3px);
+    
+    /* Create New Card */
+    .create-card {
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      border: 3px dashed rgba(255,255,255,0.5);
     }
-
-    /* Tables */
-    table {
-      width:100%; border-collapse:collapse;
+    
+    .create-card:hover {
+      border-color: white;
+      transform: scale(1.05);
     }
-    th,td {
-      text-align:left; padding:.75rem;
-      border-bottom:1px solid var(--border);
+    
+    .create-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
     }
-    th { background:var(--card-bg); }
-
-    /* Context Menu */
-    .context-menu {
-      position:absolute; display:none; background:var(--card-bg);
-      border:1px solid var(--border); border-radius:4px;
-      z-index:1000;
+    
+    .create-text {
+      font-size: 1.3rem;
+      font-weight: 600;
     }
-    .context-menu ul { list-style:none; margin:0; padding:.5rem 0; }
-    .context-menu li {
-      padding:.5rem 1.5rem; cursor:pointer;
-      transition:background .2s;
+    
+    /* Template Section */
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 3rem 0 2rem;
+      font-family: var(--font-accent);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
-    .context-menu li:hover { background:var(--accent); color:#fff; }
-
+    
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    
+    .template-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px var(--shadow);
+      transition: all 0.3s ease;
+      border-left: 5px solid;
+    }
+    
+    .template-card:nth-child(1) { border-color: var(--accent-pink); }
+    .template-card:nth-child(2) { border-color: var(--accent-blue); }
+    .template-card:nth-child(3) { border-color: var(--accent-yellow); }
+    .template-card:nth-child(4) { border-color: var(--accent-green); }
+    .template-card:nth-child(5) { border-color: var(--accent-purple); }
+    .template-card:nth-child(6) { border-color: var(--accent-pink); }
+    
+    .template-card:hover {
+      transform: translateX(10px);
+      box-shadow: 0 6px 25px var(--shadow);
+    }
+    
+    .template-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .template-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-desc {
+      color: #718096;
+      line-height: 1.6;
+    }
+    
     /* Modal */
     .modal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,0.4);
-      align-items:center; justify-content:center;
-      z-index:2000;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
     }
-    .modal .content {
-      background:var(--card-bg); padding:2rem;
-      border-radius:8px; width:320px; position:relative;
-      text-align:left;
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    .modal .close {
-      position:absolute; top:1rem; right:1rem;
-      font-size:1.5rem; cursor:pointer; color:#666;
+    
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 30px;
+      padding: 3rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      animation: slideUp 0.3s ease;
     }
-
-    /* Settings Modal */
-    .profile {
-      display:flex; align-items:center; margin-bottom:1.5rem;
+    
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-    .avatar {
-      font-size:2rem; margin-right:.75rem;
+    
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      cursor: pointer;
+      background: var(--bg-light);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
     }
-    .profile-info .name {
-      font-weight:600; margin-bottom:.25rem;
+    
+    .modal-close:hover {
+      transform: rotate(90deg);
+      background: var(--accent-pink);
+      color: white;
     }
-    .profile-info .email {
-      font-size:.85rem; color:#666;
+    
+    .modal-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      font-family: var(--font-accent);
+      text-align: center;
     }
+    
+    .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .auth-btn {
+      padding: 1rem;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .auth-btn:hover {
+      transform: scale(1.03);
+    }
+    
+    .auth-google {
+      background: #4285f4;
+      color: white;
+    }
+    
+    .auth-microsoft {
+      background: #00a4ef;
+      color: white;
+    }
+    
+    .auth-email {
+      background: var(--accent-purple);
+      color: white;
+    }
+    
+    /* Profile Section */
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-light);
+      border-radius: 20px;
+    }
+    
+    .profile-avatar {
+      font-size: 4rem;
+      background: var(--bg-gradient);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .profile-info h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .profile-info p {
+      color: #718096;
+    }
+    
+    /* Settings Menu */
     .settings-menu {
-      list-style:none; padding:0; margin:0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-    .settings-menu li {
-      padding:.75rem 1rem; border-radius:4px;
-      cursor:pointer; transition:background .2s;
+    
+    .settings-item {
+      padding: 1rem 1.5rem;
+      background: var(--bg-light);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
     }
-    .settings-menu li:hover {
-      background:var(--accent); color:#fff;
+    
+    .settings-item:hover {
+      background: var(--accent-blue);
+      color: white;
+      transform: translateX(5px);
     }
-
-    /* Login Modal Buttons */
-    #login-modal .content button {
-      width:100%; margin:.5rem 0;
-      padding:.6rem; border:none; border-radius:4px;
-      background:var(--accent); color:#fff;
-      cursor:pointer; font-size:.95rem;
-    }
-
+    
     /* Footer */
-    footer {
-      text-align:center; padding:1rem;
-      background:var(--card-bg); font-size:.85rem;
+    .footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--card-bg);
+      margin-top: 4rem;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .footer-heart {
+      color: var(--accent-pink);
+      animation: heartbeat 1.5s infinite;
+    }
+    
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* EDITOR PAGE STYLES */
+    .editor-page {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-light);
+    }
+
+    .editor-page.active {
+      display: block;
+    }
+
+    .editor-header {
+      background: var(--bg-gradient);
+      padding: 1.5rem 2rem;
+      color: white;
+      box-shadow: 0 4px 20px var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .editor-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .editor-title-input {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid transparent;
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-family: var(--font-accent);
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .editor-title-input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .editor-title-input:focus {
+      background: white;
+      color: var(--text);
+      border-color: var(--accent-pink);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .save-status {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .save-status.saved {
+      background: var(--accent-green);
+    }
+
+    .editor-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .editor-toolbar {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 15px;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 10px var(--shadow);
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      background: var(--bg-light);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--accent-purple);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .editor-content {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 4px 20px var(--shadow);
+      min-height: 500px;
+    }
+
+    .text-editor {
+      width: 100%;
+      min-height: 500px;
+      border: none;
+      outline: none;
+      font-family: var(--font-main);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--text);
+      background: transparent;
+      resize: vertical;
+    }
+
+    .text-editor:focus {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 5px;
+      border-radius: 10px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .notebook-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .editor-title-input {
+        font-size: 1.3rem;
+        max-width: 100%;
+      }
+
+      .editor-content {
+        padding: 1.5rem;
+      }
+    }
+
+    /* Hide home page when editor is active */
+    .home-page.hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <aside class="sidebar">
-    <h2 class="logo">New Notes</h2>
-    <ul class="nav-list">
-      <li class="active">Documents</li>
-      <li>Favorites</li>
-      <li>Shared</li>
-      <li>Marketplace</li>
-      <li>Trash</li>
-    </ul>
-    <label><input type="checkbox" id="theme-switch"> Dark Mode</label>
-  </aside>
-
-  <div class="main-container">
-    <header class="topbar">
-      <h1>Documents</h1>
-      <div class="controls">
-        <button id="new-btn">New</button>
-        <select id="sort-select">
-          <option value="date">Sort by Date</option>
-          <option value="name">Sort by Name</option>
-        </select>
-        <button id="settings-btn">⚙️</button>
-        <button id="login-btn">Login</button>
+  <!-- HOME PAGE -->
+  <div class="home-page">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo" id="logo-home">
+          <span class="logo-emoji">✨</span>
+          <span>My Cute Notes</span>
+        </div>
+        <div class="header-controls">
+          <button class="btn btn-primary" id="new-note-btn">
+            ➕ New Note
+          </button>
+          <button class="btn btn-secondary" id="login-btn">
+            🔐 Login
+          </button>
+          <div class="theme-toggle" id="theme-toggle">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-text">Dark Mode</span>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main>
-      <section id="notebooks">
-        <h2>My Notebooks</h2>
-        <div id="notebook-list"></div>
-        <button id="create-notebook-btn" class="fab">➕</button>
-      </section>
-
-      <hr>
-
-      <section id="templates">
-        <h2>Popular Template Categories</h2>
-        <div class="cards">
-          <div class="card">
-            <h3>Daily & Weekly Planners</h3>
-            <p>Structure your day with time blocks, goals, and to-dos.</p>
-          </div>
-          <div class="card">
-            <h3>Bullet Journals</h3>
-            <p>Habit tracking, mood logs, reflections.</p>
-          </div>
-          <div class="card">
-            <h3>Study & Cornell Notes</h3>
-            <p>Cue columns, summaries, review sections.</p>
-          </div>
-          <div class="card">
-            <h3>Budget & Finance Trackers</h3>
-            <p>Income, expenses, savings goals, overviews.</p>
-          </div>
-          <div class="card">
-            <h3>Meal & Fitness Planners</h3>
-            <p>Plan meals, workouts, track progress.</p>
-          </div>
-          <div class="card">
-            <h3>Dot Grid & Lined Paper</h3>
-            <p>Freeform notes, sketches, structured writing.</p>
-          </div>
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="all">
+          <span>📚</span> All Notes
         </div>
-
-        <h2>Where to Find Templates</h2>
-        <table>
-          <thead><tr><th>Source</th><th>Highlights</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><a href="https://gridfiti.com/goodnotes-templates/" target="_blank">Gridfiti’s Notability Templates</a></td>
-              <td>Aesthetic planners, journals, calendars—GoodNotes-ready</td>
-            </tr>
-            <tr>
-              <td><a href="https://rigorousthemes.com/free-goodnotes-templates/" target="_blank">Rigorous Themes’ Free Templates</a></td>
-              <td>Cornell notes, budget trackers, habit logs</td>
-            </tr>
-            <tr>
-              <td><a href="https://flexcil.com/templates/" target="_blank">Flexcil’s Roundup</a></td>
-              <td>Links to Kraftora, Dash Planner, IHeart Organizing</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
-
-    <footer>&copy; 2025 New Notes. All rights reserved.</footer>
-  </div>
-
-  <!-- Context Menu -->
-  <div id="ctx-menu" class="context-menu">
-    <ul>
-      <li id="ctx-rename">Rename</li>
-      <li id="ctx-duplicate">Duplicate</li>
-      <li id="ctx-export">Export as PDF</li>
-      <li id="ctx-share">Share link</li>
-      <li id="ctx-delete">Move to Trash</li>
-    </ul>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settings-modal" class="modal">
-    <div class="content">
-      <span class="close" id="settings-close">&times;</span>
-      <div class="profile">
-        <div class="avatar">👤</div>
-        <div class="profile-info">
-          <div class="name" id="user-name">Guest</div>
-          <div class="email" id="user-email">Not signed in</div>
+        <div class="tab" data-tab="favorites">
+          <span>⭐</span> Favorites
+        </div>
+        <div class="tab" data-tab="shared">
+          <span>👥</span> Shared
+        </div>
+        <div class="tab" data-tab="templates">
+          <span>🎨</span> Templates
         </div>
       </div>
-      <ul class="settings-menu">
-        <li id="delete-account">Delete Account</li>
-        <li>Manage Notebook Templates</li>
-        <li>Settings</li>
-        <li>Help</li>
-        <li>About</li>
-      </ul>
+
+      <!-- My Notebooks Section -->
+      <section id="notebooks-section">
+        <h2 class="section-title">
+          <span>📖</span> My Notebooks
+        </h2>
+        <div class="notebook-grid" id="notebook-grid">
+          <!-- Create New Card -->
+          <div class="notebook-card create-card" id="create-new">
+            <div class="create-icon">➕</div>
+            <div class="create-text">Create New</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Templates Section -->
+      <section id="templates-section">
+        <h2 class="section-title">
+          <span>🎨</span> Popular Templates
+        </h2>
+        <div class="template-grid">
+          <div class="template-card">
+            <div class="template-emoji">📅</div>
+            <h3 class="template-title">Daily Planner</h3>
+            <p class="template-desc">Organize your day with time blocks, goals, and priorities.</p>
+          </div>
+
+          <div class="template-card">
+            <div class="template-emoji">✅</div>
+            <h3 class="template-title">Bullet Journal</h3>
+            <p class="template-desc">Track habits, moods, and reflections in a creative way.</p>
+          </div>
+
+          <div class="template-card">
+            <div class="template-emoji">📚</div>
+            <h3 class="template-title">Study Notes</h3>
+            <p class="template-desc">Cornell notes with cue columns and summary sections.</p>
+          </div>
+
+          <div class="template-card">
+            <div class="template-emoji">💰</div>
+            <h3 class="template-title">Budget Tracker</h3>
+            <p class="template-desc">Monitor income, expenses, and savings goals.</p>
+          </div>
+
+          <div class="template-card">
+            <div class="template-emoji">🏃</div>
+            <h3 class="template-title">Fitness Plan</h3>
+            <p class="template-desc">Plan workouts, meals, and track your progress.</p>
+          </div>
+
+          <div class="template-card">
+            <div class="template-emoji">✏️</div>
+            <h3 class="template-title">Blank Canvas</h3>
+            <p class="template-desc">Freeform notes, sketches, and creative writing.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Made with <span class="footer-heart">💖</span> by My Cute Notes</p>
+      <p style="margin-top: 0.5rem; color: #718096;">© 2025 • Keep your thoughts organized and cute!</p>
+    </footer>
+  </div>
+
+  <!-- EDITOR PAGE -->
+  <div class="editor-page" id="editor-page">
+    <div class="editor-header">
+      <div class="editor-title-section">
+        <button class="back-btn" id="back-btn">←</button>
+        <input 
+          type="text" 
+          class="editor-title-input" 
+          id="note-title-editor"
+          placeholder="Untitled Note"
+        />
+      </div>
+      <div class="editor-actions">
+        <div class="save-status" id="save-status">
+          <span>💾</span>
+          <span id="save-text">Auto-saved</span>
+        </div>
+        <button class="btn btn-success" id="save-btn">
+          💾 Save
+        </button>
+      </div>
+    </div>
+
+    <div class="editor-container">
+      <div class="editor-toolbar">
+        <button class="toolbar-btn" onclick="document.execCommand('bold')">
+          <strong>B</strong>
+        </button>
+        <button class="toolbar-btn" onclick="document.execCommand('italic')">
+          <em>I</em>
+        </button>
+        <button class="toolbar-btn" onclick="document.execCommand('underline')">
+          <u>U</u>
+        </button>
+        <button class="toolbar-btn" onclick="document.execCommand('insertUnorderedList')">
+          • List
+        </button>
+        <button class="toolbar-btn" onclick="document.execCommand('insertOrderedList')">
+          1. List
+        </button>
+      </div>
+
+      <div class="editor-content">
+        <div 
+          class="text-editor" 
+          id="text-editor"
+          contenteditable="true"
+          spellcheck="true"
+        >Start writing your notes here...</div>
+      </div>
     </div>
   </div>
 
   <!-- Login Modal -->
-  <div id="login-modal" class="modal">
-    <div class="content">
-      <span class="close" id="login-close">&times;</span>
-      <h2>Login</h2>
-      <button id="btn-google">Continue with Google</button>
-      <button id="btn-microsoft">Continue with Microsoft</button>
-      <button id="btn-email">Login with Email</button>
-      <button id="btn-phone">Login with Phone</button>
+  <div class="modal" id="login-modal">
+    <div class="modal-content">
+      <div class="modal-close" id="login-close">×</div>
+      <h2 class="modal-title">🔐 Welcome Back!</h2>
+      <div class="auth-buttons">
+        <button class="auth-btn auth-google" id="google-login">
+          <span>🔵</span> Continue with Google
+        </button>
+        <button class="auth-btn auth-microsoft" id="microsoft-login">
+          <span>🔷</span> Continue with Microsoft
+        </button>
+        <button class="auth-btn auth-email" id="email-login">
+          <span>✉️</span> Login with Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settings-modal">
+    <div class="modal-content">
+      <div class="modal-close" id="settings-close">×</div>
+      <h2 class="modal-title">⚙️ Settings</h2>
+      
+      <div class="profile-section">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-info">
+          <h3 id="user-name">Guest</h3>
+          <p id="user-email">Not signed in</p>
+        </div>
+      </div>
+
+      <ul class="settings-menu">
+        <li class="settings-item">📝 Manage Templates</li>
+        <li class="settings-item">⚙️ Preferences</li>
+        <li class="settings-item">❓ Help & Support</li>
+        <li class="settings-item">ℹ️ About</li>
+        <li class="settings-item" id="delete-account" style="color: var(--accent-pink);">🗑️ Delete Account</li>
+      </ul>
     </div>
   </div>
 
@@ -365,7 +921,7 @@
       deleteUser
     } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
 
-    // Initialize Firebase *** YOUR NEW VALUES HERE ***
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
       authDomain: "newnotes-6942f.firebaseapp.com",
@@ -374,157 +930,323 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // UI Elements
-    const themeSwitch = document.getElementById('theme-switch');
-    const sm = document.getElementById('settings-modal');
-    const lm = document.getElementById('login-modal');
-    const userNameEl = document.getElementById('user-name');
-    const userEmailEl = document.getElementById('user-email');
-    const deleteBtn = document.getElementById('delete-account');
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      themeIcon.textContent = isDark ? '☀️' : '🌙';
+      themeText.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      localStorage.setItem('darkMode', isDark);
+    });
 
-    // Theme toggle
-    themeSwitch.addEventListener('change', () =>
-      document.body.classList.toggle('dark-mode')
-    );
+    // Load theme preference
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      themeIcon.textContent = '☀️';
+      themeText.textContent = 'Light Mode';
+    }
 
-    // Settings modal
-    document.getElementById('settings-btn').onclick = () => sm.style.display = 'flex';
-    document.getElementById('settings-close').onclick = () => sm.style.display = 'none';
-    window.addEventListener('click', e => { if (e.target === sm) sm.style.display = 'none'; });
+    // Modal Controls
+    const loginModal = document.getElementById('login-modal');
+    const settingsModal = document.getElementById('settings-modal');
+    const loginBtn = document.getElementById('login-btn');
+    const loginClose = document.getElementById('login-close');
+    const settingsClose = document.getElementById('settings-close');
 
-    // Login modal
-    document.getElementById('login-btn').onclick = () => lm.style.display = 'flex';
-    document.getElementById('login-close').onclick = () => lm.style.display = 'none';
-    window.addEventListener('click', e => { if (e.target === lm) lm.style.display = 'none'; });
+    loginBtn.onclick = () => loginModal.style.display = 'flex';
+    loginClose.onclick = () => loginModal.style.display = 'none';
+    settingsClose.onclick = () => settingsModal.style.display = 'none';
 
-    // Auth state changes
+    window.onclick = (e) => {
+      if (e.target === loginModal) loginModal.style.display = 'none';
+      if (e.target === settingsModal) settingsModal.style.display = 'none';
+    };
+
+    // Tab Navigation
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // NOTEBOOK MANAGEMENT
+    const emojis = ['📗', '📕', '📙', '📔', '🎨', '🌸', '🌟', '🍀', '🎯', '💎', '📘', '💝', '🍳', '✏️'];
+    let notebooks = JSON.parse(localStorage.getItem('notebooks')) || [];
+    let currentNoteId = null;
+
+    // Load all notebooks on page load
+    function loadNotebooks() {
+      const notebookGrid = document.getElementById('notebook-grid');
+      // Clear existing notebooks (keep create button)
+      const createCard = document.getElementById('create-new');
+      notebookGrid.innerHTML = '';
+      notebookGrid.appendChild(createCard);
+
+      notebooks.forEach(notebook => {
+        addNotebookCard(notebook);
+      });
+    }
+
+    function saveNotebooks() {
+      localStorage.setItem('notebooks', JSON.stringify(notebooks));
+    }
+
+    function addNotebookCard(notebook) {
+      const notebookGrid = document.getElementById('notebook-grid');
+      const card = document.createElement('div');
+      card.className = 'notebook-card';
+      card.dataset.noteId = notebook.id;
+      card.innerHTML = `
+        <div class="notebook-icon">${notebook.emoji}</div>
+        <div class="notebook-title">${notebook.title}</div>
+        <div class="notebook-meta">📅 ${notebook.date}</div>
+        <div class="notebook-actions">
+          <button class="action-btn star-btn" title="Star">⭐</button>
+          <button class="action-btn share-btn" title="Share">🔗</button>
+          <button class="action-btn delete-btn" title="Delete">🗑️</button>
+        </div>
+      `;
+
+      // Open note on click
+      card.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('action-btn')) {
+          openNote(notebook.id);
+        }
+      });
+
+      // Action buttons
+      const starBtn = card.querySelector('.star-btn');
+      const shareBtn = card.querySelector('.share-btn');
+      const deleteBtn = card.querySelector('.delete-btn');
+
+      starBtn.onclick = (e) => {
+        e.stopPropagation();
+        starBtn.style.transform = 'scale(1.3)';
+        setTimeout(() => starBtn.style.transform = 'scale(1)', 200);
+      };
+
+      shareBtn.onclick = (e) => {
+        e.stopPropagation();
+        alert('🔗 Share link copied! (Demo)');
+      };
+
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (confirm('🗑️ Move to trash?')) {
+          notebooks = notebooks.filter(n => n.id !== notebook.id);
+          saveNotebooks();
+          card.style.animation = 'fadeOut 0.3s ease';
+          setTimeout(() => card.remove(), 300);
+        }
+      };
+
+      notebookGrid.appendChild(card);
+    }
+
+    function createNotebook() {
+      const title = prompt('📝 Name your notebook:', 'My New Notebook');
+      if (!title) return;
+
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const notebook = {
+        id: Date.now().toString(),
+        title: title,
+        emoji: emoji,
+        content: '',
+        date: new Date().toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })
+      };
+
+      notebooks.push(notebook);
+      saveNotebooks();
+      addNotebookCard(notebook);
+      
+      // Open the new note immediately
+      openNote(notebook.id);
+    }
+
+    // Create notebook event listeners
+    document.getElementById('create-new').onclick = createNotebook;
+    document.getElementById('new-note-btn').onclick = createNotebook;
+
+    // EDITOR FUNCTIONALITY
+    const homePage = document.querySelector('.home-page');
+    const editorPage = document.getElementById('editor-page');
+    const backBtn = document.getElementById('back-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const noteTitleEditor = document.getElementById('note-title-editor');
+    const textEditor = document.getElementById('text-editor');
+    const saveStatus = document.getElementById('save-status');
+    const saveText = document.getElementById('save-text');
+
+    function openNote(noteId) {
+      const notebook = notebooks.find(n => n.id === noteId);
+      if (!notebook) return;
+
+      currentNoteId = noteId;
+      noteTitleEditor.value = notebook.title;
+      textEditor.innerHTML = notebook.content || 'Start writing your notes here...';
+
+      // Switch to editor
+      homePage.classList.add('hidden');
+      editorPage.classList.add('active');
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    function closeEditor() {
+      saveNote();
+      homePage.classList.remove('hidden');
+      editorPage.classList.remove('active');
+      currentNoteId = null;
+      window.scrollTo(0, 0);
+    }
+
+    function saveNote() {
+      if (!currentNoteId) return;
+
+      const notebook = notebooks.find(n => n.id === currentNoteId);
+      if (notebook) {
+        notebook.title = noteTitleEditor.value || 'Untitled Note';
+        notebook.content = textEditor.innerHTML;
+        notebook.date = new Date().toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        });
+        
+        saveNotebooks();
+        loadNotebooks();
+
+        // Show save confirmation
+        saveStatus.classList.add('saved');
+        saveText.textContent = 'Saved!';
+        setTimeout(() => {
+          saveStatus.classList.remove('saved');
+          saveText.textContent = 'Auto-saved';
+        }, 2000);
+      }
+    }
+
+    // Auto-save every 10 seconds
+    setInterval(() => {
+      if (currentNoteId) {
+        saveNote();
+      }
+    }, 10000);
+
+    // Event listeners
+    backBtn.onclick = closeEditor;
+    saveBtn.onclick = saveNote;
+
+    // Auto-save on title change
+    noteTitleEditor.addEventListener('blur', saveNote);
+
+    // Logo click to go home
+    document.getElementById('logo-home').onclick = () => {
+      window.scrollTo(0, 0);
+    };
+
+    // Load notebooks on page load
+    loadNotebooks();
+
+    // Auth State
     onAuthStateChanged(auth, user => {
+      const userName = document.getElementById('user-name');
+      const userEmail = document.getElementById('user-email');
+      
       if (user) {
-        userNameEl.textContent = user.displayName || user.email;
-        userEmailEl.textContent = user.email;
+        userName.textContent = user.displayName || user.email.split('@')[0];
+        userEmail.textContent = user.email;
+        loginBtn.textContent = '⚙️ Settings';
+        loginBtn.onclick = () => settingsModal.style.display = 'flex';
       } else {
-        userNameEl.textContent = 'Guest';
-        userEmailEl.textContent = 'Not signed in';
+        userName.textContent = 'Guest';
+        userEmail.textContent = 'Not signed in';
+        loginBtn.textContent = '🔐 Login';
+        loginBtn.onclick = () => loginModal.style.display = 'flex';
       }
     });
 
-    // Login flows
-    document.getElementById('btn-google').onclick = () => {
-      signInWithPopup(auth, new GoogleAuthProvider())
-        .catch(console.error);
-    };
-    document.getElementById('btn-microsoft').onclick = () => {
-      const ms = new OAuthProvider('microsoft.com');
-      signInWithPopup(auth, ms).catch(console.error);
-    };
-    document.getElementById('btn-email').onclick = async () => {
-      const email = prompt('Email:');
-      const pass = prompt('Password:');
+    // Login Handlers
+    document.getElementById('google-login').onclick = async () => {
       try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch {
-        await createUserWithEmailAndPassword(auth, email, pass);
+        await signInWithPopup(auth, new GoogleAuthProvider());
+        loginModal.style.display = 'none';
+      } catch (error) {
+        alert('❌ Login failed: ' + error.message);
       }
     };
-    document.getElementById('btn-phone').onclick = () => {
-      alert('Phone login not implemented in this demo.');
+
+    document.getElementById('microsoft-login').onclick = async () => {
+      try {
+        const provider = new OAuthProvider('microsoft.com');
+        await signInWithPopup(auth, provider);
+        loginModal.style.display = 'none';
+      } catch (error) {
+        alert('❌ Login failed: ' + error.message);
+      }
     };
 
-    // Delete account
-    deleteBtn.onclick = async () => {
-      if (!auth.currentUser) return alert('Not signed in');
-      if (!confirm('Delete your account? This is irreversible.')) return;
+    document.getElementById('email-login').onclick = async () => {
+      const email = prompt('✉️ Enter your email:');
+      if (!email) return;
+      const password = prompt('🔒 Enter your password:');
+      if (!password) return;
+
       try {
-        await deleteUser(auth.currentUser);
-        alert('Account deleted');
-      } catch (e) {
-        if (e.code === 'auth/requires-recent-login') {
-          const email = prompt('Re-enter email:');
-          const pass = prompt('Re-enter password:');
-          const cred = EmailAuthProvider.credential(email, pass);
-          await reauthenticateWithCredential(auth.currentUser, cred);
-          await deleteUser(auth.currentUser);
-          alert('Account deleted after re-authentication');
+        await signInWithEmailAndPassword(auth, email, password);
+        loginModal.style.display = 'none';
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          if (confirm('Create new account?')) {
+            await createUserWithEmailAndPassword(auth, email, password);
+            loginModal.style.display = 'none';
+          }
         } else {
-          console.error(e);
-          alert('Error deleting account: ' + e.message);
+          alert('❌ Login failed: ' + error.message);
         }
       }
-      sm.style.display = 'none';
     };
 
-    // Notebook & context menu logic
-    let notebookCount = 0, ctxTarget = null;
-    const menu = document.getElementById('ctx-menu');
+    // Delete Account
+    document.getElementById('delete-account').onclick = async () => {
+      if (!auth.currentUser) {
+        alert('⚠️ Please sign in first');
+        return;
+      }
 
-    function fmtDate(d = new Date()) {
-      return d.toLocaleString('en-US', {
-        month:'short',day:'numeric',year:'numeric',
-        hour:'numeric',minute:'2-digit'
-      });
-    }
-    function addNotebook({ title, cover='📓', meta } = {}) {
-      notebookCount++;
-      const list = document.getElementById('notebook-list'),
-            card = document.createElement('div');
-      card.className = 'notebook-card';
-      card.innerHTML = `
-        <div class="star">☆</div>
-        <div class="notebook-cover">${cover}</div>
-        <div class="notebook-details">
-          <div class="notebook-title">${title||'Untitled '+notebookCount}</div>
-          <div class="notebook-date">${meta||fmtDate()}</div>
-        </div>`;
-      card.querySelector('.star').onclick = e => {
-        const s = e.target;
-        s.classList.toggle('active');
-        s.textContent = s.classList.contains('active')?'★':'☆';
-      };
-      const ttl = card.querySelector('.notebook-title');
-      ttl.ondblclick = () => {
-        const n = prompt('New name:', ttl.textContent);
-        if (n) ttl.textContent = n;
-      };
-      card.oncontextmenu = e => {
-        e.preventDefault();
-        ctxTarget = card;
-        menu.style.top = e.clientY + 'px';
-        menu.style.left = e.clientX + 'px';
-        menu.style.display = 'block';
-      };
-      list.append(card);
-      card.scrollIntoView({ behavior: 'smooth' });
-    }
+      if (!confirm('⚠️ Delete your account permanently? This cannot be undone!')) return;
 
-    // initialize one sample notebook
-    addNotebook({ title:'Science', cover:'📘', meta:'Jul 4, 2025 4:14 PM' });
-    document.getElementById('new-btn').onclick = () => addNotebook();
-    document.getElementById('create-notebook-btn').onclick = () => addNotebook();
-
-    // global click hides context menu
-    window.addEventListener('click', () => menu.style.display = 'none');
-
-    // context menu actions
-    document.getElementById('ctx-rename').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title'),
-            n = prompt('Rename:', ttl.textContent);
-      if (n) ttl.textContent = n;
-    };
-    document.getElementById('ctx-duplicate').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title').textContent,
-            cv = ctxTarget.querySelector('.notebook-cover').textContent;
-      addNotebook({ title:ttl, cover:cv });
-    };
-    document.getElementById('ctx-export').onclick = () => {
-      const ttl = ctxTarget.querySelector('.notebook-title').textContent;
-      alert(`(Stub) Exported "${ttl}" as PDF`);
-    };
-    document.getElementById('ctx-share').onclick = () => {
-      const e = prompt('Share with email:');
-      if (e) alert(`(Stub) Shared with ${e}`);
-    };
-    document.getElementById('ctx-delete').onclick = () => {
-      if (confirm('Move to Trash?')) ctxTarget.remove();
+      try {
+        await deleteUser(auth.currentUser);
+        alert('✅ Account deleted successfully');
+        settingsModal.style.display = 'none';
+      } catch (error) {
+        if (error.code === 'auth/requires-recent-login') {
+          const email = prompt('✉️ Re-enter your email:');
+          const password = prompt('🔒 Re-enter your password:');
+          if (email && password) {
+            const credential = EmailAuthProvider.credential(email, password);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+            await deleteUser(auth.currentUser);
+            alert('✅ Account deleted successfully');
+            settingsModal.style.display = 'none';
+          }
+        } else {
+          alert('❌ Error: ' + error.message);
+        }
+      }
     };
   </script>
 </body>
