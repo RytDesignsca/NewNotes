@@ -1,4 +1,3 @@
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -1127,6 +1126,7 @@
 
       <ul class="settings-menu">
         <li class="settings-item" id="login-settings-btn">🔐 Login / Sign Up</li>
+        <li class="settings-item" id="delete-current-note" style="display: none;">🗑️ Delete Current Note</li>
         <li class="settings-item" id="logout-btn" style="display: none;">🚪 Logout</li>
         <li class="settings-item" id="export-data-btn">📤 Export All Notes</li>
         <li class="settings-item" id="import-data-btn">📥 Import Notes</li>
@@ -1464,7 +1464,7 @@
 <h3>📋 Milestones</h3>
 <ol><li>_____ (Due: _____)</li><li>_____ (Due: _____)</li><li>_____ (Due: _____)</li></ol>
 <h3>✅ Task List</h3>
-<ul><li>[ ] _____</li><li>[ ] _____</li><li>[ ] _____</li></ul>
+<ul><li>[ ] _____</li><li>_____</li><li>_____</li></ul>
 <h3>💡 Ideas & Notes</h3>
 <p>_____</p>
 <h3>📊 Progress</h3>
@@ -1474,6 +1474,10 @@
 
     // EMOJI LIST
     const emojiList = ['📗', '📕', '📙', '📔', '🎨', '🌸', '🌟', '🍀', '🎯', '💎', '📘', '💝', '🍳', '✏️', '🎵', '⚽', '🎮', '📷', '🍕', '☕', '🚗', '✈️', '🏠', '💼', '🎓', '💡', '🔬', '🎭', '🎪', '🎬', '📱', '💻', '⌚', '📺', '🎸', '🎹', '🎺', '🎻', '🥁', '🎤', '🎧', '📻', '🎮', '🕹️', '🎲', '🧩', '🎯', '🎱', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🥏', '🎳', '🏏', '🏑', '🏒', '🥍', '🏓', '🏸', '🥊', '🥋'];
+
+    // LOCAL STORAGE KEYS
+    const LOCAL_KEY = 'newnotes_local_notebooks_v1';
+    const LOCAL_TRASH_KEY = 'newnotes_local_trashed_v1';
 
     // UI ELEMENTS
     const loginModal = document.getElementById('login-modal');
@@ -1572,6 +1576,57 @@
       });
     });
 
+    // LOCAL STORAGE HELPERS (for offline use)
+    function loadLocalNotebooks() {
+      const raw = localStorage.getItem(LOCAL_KEY);
+      const rawTrash = localStorage.getItem(LOCAL_TRASH_KEY);
+      const local = raw ? JSON.parse(raw) : [];
+      const localTrash = rawTrash ? JSON.parse(rawTrash) : [];
+      return { local, localTrash };
+    }
+
+    function saveLocalNotebook(notebook) {
+      const { local } = loadLocalNotebooks();
+      const idx = local.findIndex(n => n.id === notebook.id);
+      if (idx >= 0) local[idx] = notebook;
+      else local.unshift(notebook);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(local));
+      return true;
+    }
+
+    function deleteLocalNotebook(id) {
+      const { local } = loadLocalNotebooks();
+      const filtered = local.filter(n => n.id !== id);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(filtered));
+      return true;
+    }
+
+    function moveLocalToTrash(id) {
+      const data = loadLocalNotebooks();
+      const item = data.local.find(n => n.id === id);
+      if (!item) return false;
+      data.local = data.local.filter(n => n.id !== id);
+      data.localTrash.unshift(item);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(data.local));
+      localStorage.setItem(LOCAL_TRASH_KEY, JSON.stringify(data.localTrash));
+      return true;
+    }
+
+    function emptyLocalTrash() {
+      localStorage.setItem(LOCAL_TRASH_KEY, JSON.stringify([]));
+    }
+
+    function restoreLocalFromTrash(id) {
+      const data = loadLocalNotebooks();
+      const item = data.localTrash.find(n => n.id === id);
+      if (!item) return false;
+      data.localTrash = data.localTrash.filter(n => n.id !== id);
+      data.local.unshift(item);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(data.local));
+      localStorage.setItem(LOCAL_TRASH_KEY, JSON.stringify(data.localTrash));
+      return true;
+    }
+
     // RENDER TEMPLATES
     function renderTemplates() {
       const grid = document.getElementById('template-grid');
@@ -1594,12 +1649,6 @@
     }
 
     async function useTemplate(template) {
-      if (!currentUser) {
-        alert('⚠️ Please login to use templates');
-        loginModal.style.display = 'flex';
-        return;
-      }
-
       const notebook = {
         id: Date.now().toString(),
         title: template.title,
@@ -1607,12 +1656,23 @@
         content: template.content,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         favorite: false,
-        trash: false
+        trash: false,
+        localOnly: !currentUser
       };
 
+      if (!currentUser) {
+        // Save locally and open
+        saveLocalNotebook(notebook);
+        notebooks.unshift(notebook);
+        renderNotebooks();
+        openNote(notebook.id);
+        return;
+      }
+
+      // If logged in, save to Firestore
       const saved = await saveNotebookToFirestore(notebook);
       if (saved) {
-        notebooks.push(notebook);
+        notebooks.unshift(notebook);
         await loadNotebooks();
         openNote(notebook.id);
       }
@@ -1626,23 +1686,27 @@
     let currentIconNoteId = null;
 
     async function loadNotebooks() {
+      document.getElementById('loading-notebooks').style.display = 'block';
+      notebooks = [];
+      trashedNotebooks = [];
+
       if (!currentUser) {
-        notebooks = [];
-        trashedNotebooks = [];
+        // load local notes
+        const { local, localTrash } = loadLocalNotebooks();
+        notebooks = local;
+        trashedNotebooks = localTrash;
         renderNotebooks();
+        document.getElementById('loading-notebooks').style.display = 'none';
         return;
       }
 
       try {
-        document.getElementById('loading-notebooks').style.display = 'block';
         const notebooksRef = collection(db, 'users', currentUser.uid, 'notebooks');
         const q = query(notebooksRef, orderBy('updatedAt', 'desc'));
         const querySnapshot = await getDocs(q);
         
-        notebooks = [];
-        trashedNotebooks = [];
-        querySnapshot.forEach((doc) => {
-          const data = { id: doc.id, ...doc.data() };
+        querySnapshot.forEach((docSnap) => {
+          const data = { id: docSnap.id, ...docSnap.data() };
           if (data.trash) {
             trashedNotebooks.push(data);
           } else {
@@ -1650,18 +1714,27 @@
           }
         });
         
-        renderNotebooks();
+        // Also keep any local-only notes (optional): prompt user to import or merge if you'd like.
+        const localData = loadLocalNotebooks();
+        if (localData.local.length > 0) {
+          // For safety we simply keep them visible locally but not pushed to Firestore automatically.
+          // Optionally you could offer automatic import here.
+          notebooks = [...localData.local, ...notebooks];
+        }
       } catch (error) {
         console.error('Error loading notebooks:', error);
       } finally {
+        renderNotebooks();
         document.getElementById('loading-notebooks').style.display = 'none';
       }
     }
 
     async function saveNotebookToFirestore(notebook) {
+      // If not logged in, save to localStorage
       if (!currentUser) {
-        alert('⚠️ Please login to save notes');
-        return false;
+        notebook.localOnly = true;
+        saveLocalNotebook(notebook);
+        return true;
       }
 
       try {
@@ -1684,7 +1757,14 @@
     }
 
     async function deleteNotebookFromFirestore(notebookId) {
-      if (!currentUser) return false;
+      // If not logged in, remove from local storage
+      if (!currentUser) {
+        deleteLocalNotebook(notebookId);
+        notebooks = notebooks.filter(n => n.id !== notebookId);
+        trashedNotebooks = trashedNotebooks.filter(n => n.id !== notebookId);
+        renderNotebooks();
+        return true;
+      }
 
       try {
         const notebookRef = doc(db, 'users', currentUser.uid, 'notebooks', notebookId);
@@ -1702,7 +1782,16 @@
       notebookGrid.innerHTML = '';
       notebookGrid.appendChild(createCard);
 
+      if (notebooks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<div class="empty-state-icon">📭</div><p>No notes yet. Click Create New or pick a template!</p>';
+        notebookGrid.appendChild(empty);
+        return;
+      }
+
       notebooks.forEach(notebook => {
+        if (notebook.trash) return; // don't show trashed in main grid
         addNotebookCard(notebook);
       });
     }
@@ -1711,7 +1800,7 @@
       const grid = document.getElementById('favorites-grid');
       grid.innerHTML = '';
       
-      const favorites = notebooks.filter(n => n.favorite);
+      const favorites = notebooks.filter(n => n.favorite && !n.trash);
       
       if (favorites.length === 0) {
         grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⭐</div><p>No favorite notes yet!<br>Click the star icon on any note to add it here.</p></div>';
@@ -1773,6 +1862,7 @@
         e.stopPropagation();
         notebook.favorite = !notebook.favorite;
         await saveNotebookToFirestore(notebook);
+        if (notebook.localOnly) saveLocalNotebook(notebook);
         await loadNotebooks();
       };
 
@@ -1786,6 +1876,12 @@
       deleteBtn.onclick = async (e) => {
         e.stopPropagation();
         notebook.trash = true;
+        if (notebook.localOnly) {
+          moveLocalToTrash(notebook.id);
+          await loadNotebooks();
+          alert('Moved to recycle bin (local)');
+          return;
+        }
         await saveNotebookToFirestore(notebook);
         await loadNotebooks();
       };
@@ -1810,6 +1906,12 @@
       const restoreBtn = card.querySelector('.restore-btn');
       restoreBtn.onclick = async (e) => {
         e.stopPropagation();
+        if (notebook.localOnly) {
+          restoreLocalFromTrash(notebook.id);
+          await loadNotebooks();
+          renderTrash();
+          return;
+        }
         notebook.trash = false;
         await saveNotebookToFirestore(notebook);
         await loadNotebooks();
@@ -1819,11 +1921,16 @@
       const deleteBtn = card.querySelector('.delete-btn');
       deleteBtn.onclick = async (e) => {
         e.stopPropagation();
-        if (confirm('⚠️ Permanently delete this note? This cannot be undone!')) {
-          await deleteNotebookFromFirestore(notebook.id);
+        if (!confirm('⚠️ Permanently delete this note? This cannot be undone!')) return;
+        if (notebook.localOnly) {
+          deleteLocalNotebook(notebook.id);
           trashedNotebooks = trashedNotebooks.filter(n => n.id !== notebook.id);
           renderTrash();
+          return;
         }
+        await deleteNotebookFromFirestore(notebook.id);
+        trashedNotebooks = trashedNotebooks.filter(n => n.id !== notebook.id);
+        renderTrash();
       };
 
       return card;
@@ -1847,7 +1954,8 @@
           const notebook = notebooks.find(n => n.id === currentIconNoteId);
           if (notebook) {
             notebook.emoji = emoji;
-            await saveNotebookToFirestore(notebook);
+            if (notebook.localOnly) saveLocalNotebook(notebook);
+            else await saveNotebookToFirestore(notebook);
             await loadNotebooks();
             closeAllModals();
           }
@@ -1860,6 +1968,7 @@
     // SHARE MODAL
     function showShareModal(notebook) {
       const shareLink = document.getElementById('share-link');
+      // For local notes, still generate a link with ?share=id but note recipient can't access content from server
       shareLink.value = `${window.location.origin}${window.location.pathname}?share=${notebook.id}`;
       
       document.getElementById('copy-link-btn').onclick = () => {
@@ -1898,23 +2007,26 @@
         return;
       }
 
+      // Delete permanently
       for (const notebook of trashedNotebooks) {
-        await deleteNotebookFromFirestore(notebook.id);
+        if (notebook.localOnly) {
+          // remove from local trash
+          const data = loadLocalNotebooks();
+          const remaining = data.localTrash.filter(n => n.id !== notebook.id);
+          localStorage.setItem(LOCAL_TRASH_KEY, JSON.stringify(remaining));
+        } else {
+          await deleteNotebookFromFirestore(notebook.id);
+        }
       }
       
       trashedNotebooks = [];
+      emptyLocalTrash();
       renderTrash();
       alert('✅ Recycle bin emptied!');
     };
 
     // CREATE NOTEBOOK
     async function createNotebook() {
-      if (!currentUser) {
-        alert('⚠️ Please login to create notes');
-        loginModal.style.display = 'flex';
-        return;
-      }
-
       const title = prompt('📝 Name your notebook:', 'My New Notebook');
       if (!title) return;
 
@@ -1926,12 +2038,21 @@
         content: '',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         favorite: false,
-        trash: false
+        trash: false,
+        localOnly: !currentUser
       };
+
+      if (!currentUser) {
+        saveLocalNotebook(notebook);
+        notebooks.unshift(notebook);
+        addNotebookCard(notebook);
+        openNote(notebook.id);
+        return;
+      }
 
       const saved = await saveNotebookToFirestore(notebook);
       if (saved) {
-        notebooks.push(notebook);
+        notebooks.unshift(notebook);
         addNotebookCard(notebook);
         openNote(notebook.id);
       }
@@ -1963,6 +2084,9 @@
       noteTitleEditor.value = notebook.title;
       textEditor.innerHTML = notebook.content || 'Start writing your notes here...';
 
+      // show delete current note option in settings
+      document.getElementById('delete-current-note').style.display = 'block';
+
       homePage.classList.add('hidden');
       editorPage.classList.add('active');
       window.scrollTo(0, 0);
@@ -1973,19 +2097,21 @@
       homePage.classList.remove('hidden');
       editorPage.classList.remove('active');
       currentNoteId = null;
+      document.getElementById('delete-current-note').style.display = 'none';
       window.scrollTo(0, 0);
     }
 
     async function saveNote() {
-      if (!currentNoteId || !currentUser) return;
+      if (!currentNoteId) return;
 
-      const notebook = notebooks.find(n => n.id === currentNoteId);
+      const notebook = notebooks.find(n => n.id === currentNoteId) || trashedNotebooks.find(n => n.id === currentNoteId);
       if (notebook) {
         notebook.title = noteTitleEditor.value || 'Untitled Note';
         notebook.content = textEditor.innerHTML;
         notebook.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         
         const saved = await saveNotebookToFirestore(notebook);
+        if (notebook.localOnly) saveLocalNotebook(notebook);
         if (saved) {
           renderNotebooks();
           saveStatus.classList.add('saved');
@@ -1999,7 +2125,7 @@
     }
 
     setInterval(() => {
-      if (currentNoteId && currentUser) {
+      if (currentNoteId) {
         saveNote();
       }
     }, 10000);
@@ -2036,9 +2162,13 @@
         
         notebooks = [];
         trashedNotebooks = [];
+        // Load local notebooks so users can create & manage notes while logged out
+        const localData = loadLocalNotebooks();
+        notebooks = localData.local;
+        trashedNotebooks = localData.localTrash;
         renderNotebooks();
         
-        // Show login modal for new users
+        // Show login modal for new users only on first visit
         setTimeout(() => {
           if (!localStorage.getItem('hasVisited')) {
             loginModal.style.display = 'flex';
@@ -2136,6 +2266,53 @@
       }
     };
 
+    // DELETE CURRENT NOTE (new settings button)
+    document.getElementById('delete-current-note').onclick = async () => {
+      if (!currentNoteId) {
+        alert('⚠️ No note is currently open.');
+        return;
+      }
+
+      const notebook = notebooks.find(n => n.id === currentNoteId) || trashedNotebooks.find(n => n.id === currentNoteId);
+      if (!notebook) {
+        alert('⚠️ Note not found.');
+        return;
+      }
+
+      if (!notebook.trash) {
+        // move to trash
+        if (notebook.localOnly) {
+          moveLocalToTrash(notebook.id);
+          await loadNotebooks();
+          closeEditor();
+          alert('Note moved to recycle bin (local).');
+          return;
+        }
+        notebook.trash = true;
+        await saveNotebookToFirestore(notebook);
+        await loadNotebooks();
+        closeEditor();
+        alert('Note moved to recycle bin.');
+        return;
+      } else {
+        // permanently delete
+        if (!confirm('⚠️ Permanently delete this note? This cannot be undone!')) return;
+        if (notebook.localOnly) {
+          deleteLocalNotebook(notebook.id);
+          trashedNotebooks = trashedNotebooks.filter(n => n.id !== notebook.id);
+          renderTrash();
+          closeEditor();
+          alert('Note permanently deleted (local).');
+          return;
+        }
+        await deleteNotebookFromFirestore(notebook.id);
+        trashedNotebooks = trashedNotebooks.filter(n => n.id !== notebook.id);
+        renderTrash();
+        closeEditor();
+        alert('Note permanently deleted.');
+      }
+    };
+
     // DELETE ACCOUNT
     document.getElementById('delete-account').onclick = async () => {
       if (!auth.currentUser) {
@@ -2168,12 +2345,13 @@
 
     // EXPORT DATA
     document.getElementById('export-data-btn').onclick = () => {
-      if (notebooks.length === 0) {
+      const combined = [...notebooks, ...trashedNotebooks];
+      if (combined.length === 0) {
         alert('⚠️ No notes to export!');
         return;
       }
 
-      const data = JSON.stringify(notebooks, null, 2);
+      const data = JSON.stringify(combined, null, 2);
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2202,7 +2380,12 @@
 
             for (const note of importedNotes) {
               note.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-              await saveNotebookToFirestore(note);
+              note.localOnly = !currentUser;
+              if (!currentUser) {
+                saveLocalNotebook(note);
+              } else {
+                await saveNotebookToFirestore(note);
+              }
             }
 
             await loadNotebooks();
@@ -2218,6 +2401,11 @@
 
     // Initialize
     renderTemplates();
+    // initial local load
+    const localInitial = loadLocalNotebooks();
+    notebooks = localInitial.local;
+    trashedNotebooks = localInitial.localTrash;
+    renderNotebooks();
   </script>
 </body>
 </html>
