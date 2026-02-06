@@ -1,4 +1,4 @@
-
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -1398,7 +1398,7 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-    // Firebase config (from your snippet)
+    // Firebase config — make sure these match your Firebase project settings
     const firebaseConfig = {
       apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
       authDomain: "newnotes-6942f.firebaseapp.com",
@@ -1422,6 +1422,9 @@
 
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // Debug: initial auth state log
+    console.log('Firebase auth initialized. auth.currentUser at load:', auth.currentUser);
 
     // TEMPLATES DATA
     const templates = [
@@ -1774,10 +1777,10 @@
       try {
         const notebookRef = doc(db, 'users', auth.currentUser.uid, 'notebooks', notebook.id);
         const payload = {
-          title: notebook.title,
-          emoji: notebook.emoji,
-          content: notebook.content,
-          date: notebook.date,
+          title: notebook.title || 'Untitled Note',
+          emoji: notebook.emoji || '📘',
+          content: notebook.content || '',
+          date: notebook.date || new Date().toLocaleDateString(),
           favorite: !!notebook.favorite,
           trash: !!notebook.trash,
           theme: notebook.theme || 'blank',
@@ -1786,6 +1789,7 @@
         if (isNew) {
           payload.createdAt = serverTimestamp();
         }
+        console.log('Saving notebook to Firestore', { uid: auth.currentUser.uid, notebookId: notebook.id });
         await setDoc(notebookRef, payload, { merge: true });
         return true;
       } catch (error) {
@@ -2062,6 +2066,8 @@
         theme: 'blank'
       };
 
+      console.log('createNotebook called; saving notebook for user:', auth.currentUser.uid, notebook.id);
+
       const saved = await saveNotebookToFirestore(notebook, true);
       if (saved) {
         // prefer refreshing from server to keep canonical ordering and fields
@@ -2221,13 +2227,11 @@
         default:
           editorContent.classList.add('editor-paper-blank');
       }
-      // ensure text-editor color respects the applied style
-      // (text-editor uses current color; some paper themes change parent color)
-      // Save a class on editor page for visual feedback if needed
     }
 
     // AUTHENTICATION
     onAuthStateChanged(auth, async (user) => {
+      console.log('onAuthStateChanged fired, user:', user);
       const userName = document.getElementById('user-name');
       const userEmail = document.getElementById('user-email');
       const logoutBtn = document.getElementById('logout-btn');
