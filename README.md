@@ -780,6 +780,7 @@
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .toolbar-btn {
@@ -791,6 +792,9 @@
       font-size: 1rem;
       transition: all 0.3s ease;
       font-weight: 600;
+      display: inline-flex;
+      gap: 0.5rem;
+      align-items: center;
     }
 
     .toolbar-btn:hover {
@@ -805,6 +809,46 @@
       padding: 3rem;
       box-shadow: 0 4px 20px var(--shadow);
       min-height: 500px;
+      position: relative;
+      transition: background 0.3s ease, color 0.3s ease;
+      overflow: hidden;
+    }
+
+    /* PAPER / NOTE STYLES (GoodNotes-like) */
+    .editor-paper-blank { background: var(--card-bg); }
+    .editor-paper-lined {
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 28px,
+          rgba(0,0,0,0.04) 29px
+        );
+      background-color: var(--card-bg);
+    }
+    .editor-paper-ruled {
+      background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.03) 0 1px,
+          transparent 1px 28px
+        ) border-box;
+      background-color: var(--card-bg);
+    }
+    .editor-paper-grid {
+      background:
+        linear-gradient(0deg, rgba(0,0,0,0.03) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px) 0 0 / 28px 28px;
+      background-color: var(--card-bg);
+    }
+    .editor-paper-sepia {
+      background: #fbf0df;
+      color: #3d2b1f;
+    }
+    .editor-paper-dark {
+      background: #0f1724;
+      color: #dbeafe;
     }
 
     .text-editor {
@@ -824,6 +868,30 @@
       outline-offset: 5px;
       border-radius: 10px;
     }
+
+    /* PAPER MENU */
+    .paper-menu {
+      position: absolute;
+      top: 65px;
+      right: 20px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding: 0.5rem;
+      display: none;
+      z-index: 50;
+      width: 220px;
+    }
+    .paper-option {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.6rem;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .paper-option:hover { background: rgba(0,0,0,0.04); }
 
     .loading {
       text-align: center;
@@ -908,6 +976,9 @@
       font-size: 5rem;
       margin-bottom: 1rem;
     }
+
+    /* small helper for paper menu open state */
+    .paper-menu.open { display: block; }
   </style>
 </head>
 <body>
@@ -958,7 +1029,7 @@
           Loading your notes...
         </div>
         <div class="notebook-grid" id="notebook-grid">
-          <div class="notebook-card create-card" id="create-new">
+          <div class="notebook-card create-card" id="create-new" role="button" tabindex="0">
             <div class="create-icon">➕</div>
             <div class="create-text">Create New</div>
           </div>
@@ -1052,9 +1123,22 @@
         <button class="toolbar-btn" onclick="document.execCommand('justifyRight')">
           ➡️ Right
         </button>
+
+        <!-- Paper (GoodNotes-like) -->
+        <div style="position: relative; margin-left: auto;">
+          <button id="paper-btn" class="toolbar-btn" title="Paper style">📄 Paper</button>
+          <div id="paper-menu" class="paper-menu" aria-hidden="true">
+            <div class="paper-option" data-paper="blank">🟦 Blank</div>
+            <div class="paper-option" data-paper="lined">📏 Lined</div>
+            <div class="paper-option" data-paper="ruled">📐 Ruled</div>
+            <div class="paper-option" data-paper="grid">🔲 Grid</div>
+            <div class="paper-option" data-paper="sepia">🌰 Sepia</div>
+            <div class="paper-option" data-paper="dark">🌙 Dark</div>
+          </div>
+        </div>
       </div>
 
-      <div class="editor-content">
+      <div class="editor-content editor-paper-blank" id="editor-content">
         <div 
           class="text-editor" 
           id="text-editor"
@@ -1256,7 +1340,7 @@
       <h2 class="modal-title">ℹ️ About NewNotes</h2>
       <div style="text-align: center;">
         <p style="font-size: 3rem; margin: 1rem 0;">✨</p>
-        <h3 style="margin: 1rem 0;">NewNotes v1.0</h3>
+        <h3 style="margin: 1rem 0;">NewNotes v1.1</h3>
         <p style="color: #718096; margin: 1rem 0;">
           A beautiful, modern note-taking app designed to help you organize your thoughts and ideas.
         </p>
@@ -1270,7 +1354,8 @@
             ✅ Recycle bin for recovery<br>
             ✅ Share notes with others<br>
             ✅ Multiple theme options<br>
-            ✅ Customizable note icons
+            ✅ Customizable note icons<br>
+            ✅ Paper styles (lined, grid, sepia, dark)
           </p>
         </div>
         <p style="margin-top: 2rem; font-weight: 600;">
@@ -1318,7 +1403,7 @@
       apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
       authDomain: "newnotes-6942f.firebaseapp.com",
       projectId: "newnotes-6942f",
-      storageBucket: "newnotes-6942f.firebasestorage.app",
+      storageBucket: "newnotes-6942f.appspot.com",
       messagingSenderId: "108980754671",
       appId: "1:108980754671:web:f584d61feffc9e438aa31a",
       measurementId: "G-P8KVQS62FB"
@@ -1491,6 +1576,8 @@
       [loginModal, emailModal, settingsModal, themeModal, iconModal, shareModal, helpModal, aboutModal].forEach(modal => {
         modal.style.display = 'none';
       });
+      // close paper menu if open
+      closePaperMenu();
     }
 
     document.querySelectorAll('.modal-close').forEach(btn => {
@@ -1595,26 +1682,28 @@
     }
 
     async function useTemplate(template) {
-      if (!currentUser) {
+      // prefer auth.currentUser for freshest state
+      if (!auth.currentUser) {
         alert('⚠️ Please login to use templates');
         loginModal.style.display = 'flex';
         return;
       }
 
       const notebook = {
-        id: Date.now().toString(),
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
         title: template.title,
         emoji: template.emoji,
         content: template.content,
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         favorite: false,
-        trash: false
+        trash: false,
+        theme: 'blank'
       };
 
-      const saved = await saveNotebookToFirestore(notebook);
+      const saved = await saveNotebookToFirestore(notebook, true);
       if (saved) {
-        notebooks.push(notebook);
-        await loadNotebooks();
+        notebooks.unshift(notebook);
+        await loadNotebooks(); // refresh from server
         openNote(notebook.id);
       }
     }
@@ -1627,7 +1716,7 @@
     let currentIconNoteId = null;
 
     async function loadNotebooks() {
-      if (!currentUser) {
+      if (!auth.currentUser) {
         notebooks = [];
         trashedNotebooks = [];
         renderNotebooks();
@@ -1636,14 +1725,29 @@
 
       try {
         document.getElementById('loading-notebooks').style.display = 'block';
-        const notebooksRef = collection(db, 'users', currentUser.uid, 'notebooks');
-        const q = query(notebooksRef, orderBy('updatedAt', 'desc'));
+        const notebooksRef = collection(db, 'users', auth.currentUser.uid, 'notebooks');
+        // safe query: orderBy 'updatedAt' but guard in case no field exist
+        let q;
+        try {
+          q = query(notebooksRef, orderBy('updatedAt', 'desc'));
+        } catch (err) {
+          // fallback to no order if some older docs missing updatedAt
+          q = notebooksRef;
+        }
         const querySnapshot = await getDocs(q);
         
         notebooks = [];
         trashedNotebooks = [];
-        querySnapshot.forEach((doc) => {
-          const data = { id: doc.id, ...doc.data() };
+        querySnapshot.forEach((docSnap) => {
+          const data = { id: docSnap.id, ...docSnap.data() };
+          // ensure defaults to avoid missing props
+          data.title = data.title || 'Untitled Note';
+          data.emoji = data.emoji || '📘';
+          data.content = data.content || '';
+          data.date = data.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          data.favorite = !!data.favorite;
+          data.trash = !!data.trash;
+          data.theme = data.theme || 'blank';
           if (data.trash) {
             trashedNotebooks.push(data);
           } else {
@@ -1659,36 +1763,43 @@
       }
     }
 
-    async function saveNotebookToFirestore(notebook) {
-      if (!currentUser) {
+    // Save accepts optional isNew param to set createdAt
+    async function saveNotebookToFirestore(notebook, isNew = false) {
+      // prefer auth.currentUser because it reflects actual signed-in user
+      if (!auth.currentUser) {
         alert('⚠️ Please login to save notes');
         return false;
       }
 
       try {
-        const notebookRef = doc(db, 'users', currentUser.uid, 'notebooks', notebook.id);
-        await setDoc(notebookRef, {
+        const notebookRef = doc(db, 'users', auth.currentUser.uid, 'notebooks', notebook.id);
+        const payload = {
           title: notebook.title,
           emoji: notebook.emoji,
           content: notebook.content,
           date: notebook.date,
-          favorite: notebook.favorite || false,
-          trash: notebook.trash || false,
+          favorite: !!notebook.favorite,
+          trash: !!notebook.trash,
+          theme: notebook.theme || 'blank',
           updatedAt: serverTimestamp()
-        });
+        };
+        if (isNew) {
+          payload.createdAt = serverTimestamp();
+        }
+        await setDoc(notebookRef, payload, { merge: true });
         return true;
       } catch (error) {
         console.error('Error saving notebook:', error);
-        alert('Failed to save: ' + error.message);
+        alert('Failed to save: ' + (error.message || error));
         return false;
       }
     }
 
     async function deleteNotebookFromFirestore(notebookId) {
-      if (!currentUser) return false;
+      if (!auth.currentUser) return false;
 
       try {
-        const notebookRef = doc(db, 'users', currentUser.uid, 'notebooks', notebookId);
+        const notebookRef = doc(db, 'users', auth.currentUser.uid, 'notebooks', notebookId);
         await deleteDoc(notebookRef);
         return true;
       } catch (error) {
@@ -1699,10 +1810,20 @@
 
     function renderNotebooks() {
       const notebookGrid = document.getElementById('notebook-grid');
+      // Keep the "create" card element persistent and reattach after clearing
       const createCard = document.getElementById('create-new');
+      // Reset grid and re-add create card as first child
       notebookGrid.innerHTML = '';
-      notebookGrid.appendChild(createCard);
+      if (createCard) {
+        // ensure the create card has the right id and click handler
+        createCard.id = 'create-new';
+        createCard.className = 'notebook-card create-card';
+        createCard.onclick = createNotebook;
+        createCard.onkeypress = (e) => { if (e.key === 'Enter') createNotebook(); };
+        notebookGrid.appendChild(createCard);
+      }
 
+      // render notebooks
       notebooks.forEach(notebook => {
         addNotebookCard(notebook);
       });
@@ -1747,7 +1868,7 @@
       card.dataset.noteId = notebook.id;
       card.innerHTML = `
         <div class="notebook-icon" data-note-id="${notebook.id}">${notebook.emoji}</div>
-        <div class="notebook-title">${notebook.title}</div>
+        <div class="notebook-title">${escapeHtml(notebook.title)}</div>
         <div class="notebook-meta">📅 ${notebook.date}</div>
         <div class="notebook-actions">
           <button class="action-btn star-btn ${notebook.favorite ? 'favorited' : ''}" title="Favorite">⭐</button>
@@ -1757,6 +1878,7 @@
       `;
 
       card.addEventListener('click', (e) => {
+        // If clicking the icon, star or action buttons, let their handlers run; otherwise open note
         if (!e.target.classList.contains('action-btn') && !e.target.classList.contains('notebook-icon')) {
           openNote(notebook.id);
         }
@@ -1773,8 +1895,8 @@
       starBtn.onclick = async (e) => {
         e.stopPropagation();
         notebook.favorite = !notebook.favorite;
-        await saveNotebookToFirestore(notebook);
-        await loadNotebooks();
+        const saved = await saveNotebookToFirestore(notebook);
+        if (saved) await loadNotebooks();
       };
 
       const shareBtn = card.querySelector('.share-btn');
@@ -1787,8 +1909,8 @@
       deleteBtn.onclick = async (e) => {
         e.stopPropagation();
         notebook.trash = true;
-        await saveNotebookToFirestore(notebook);
-        await loadNotebooks();
+        const saved = await saveNotebookToFirestore(notebook);
+        if (saved) await loadNotebooks();
       };
 
       return card;
@@ -1800,7 +1922,7 @@
       card.style.opacity = '0.7';
       card.innerHTML = `
         <div class="notebook-icon">${notebook.emoji}</div>
-        <div class="notebook-title">${notebook.title}</div>
+        <div class="notebook-title">${escapeHtml(notebook.title)}</div>
         <div class="notebook-meta">📅 ${notebook.date}</div>
         <div class="notebook-actions">
           <button class="action-btn restore-btn" title="Restore">♻️</button>
@@ -1812,9 +1934,11 @@
       restoreBtn.onclick = async (e) => {
         e.stopPropagation();
         notebook.trash = false;
-        await saveNotebookToFirestore(notebook);
-        await loadNotebooks();
-        renderTrash();
+        const saved = await saveNotebookToFirestore(notebook);
+        if (saved) {
+          await loadNotebooks();
+          renderTrash();
+        }
       };
 
       const deleteBtn = card.querySelector('.delete-btn');
@@ -1848,9 +1972,11 @@
           const notebook = notebooks.find(n => n.id === currentIconNoteId);
           if (notebook) {
             notebook.emoji = emoji;
-            await saveNotebookToFirestore(notebook);
-            await loadNotebooks();
-            closeAllModals();
+            const saved = await saveNotebookToFirestore(notebook);
+            if (saved) {
+              await loadNotebooks();
+              closeAllModals();
+            }
           }
         };
         picker.appendChild(opt);
@@ -1864,9 +1990,13 @@
       shareLink.value = `${window.location.origin}${window.location.pathname}?share=${notebook.id}`;
       
       document.getElementById('copy-link-btn').onclick = () => {
-        shareLink.select();
-        document.execCommand('copy');
-        alert('✅ Link copied to clipboard!');
+        try {
+          shareLink.select();
+          document.execCommand('copy');
+          alert('✅ Link copied to clipboard!');
+        } catch {
+          alert('Copy not supported on this browser');
+        }
       };
 
       document.getElementById('share-form').onsubmit = async (e) => {
@@ -1899,7 +2029,7 @@
         return;
       }
 
-      for (const notebook of trashedNotebooks) {
+      for (const notebook of [...trashedNotebooks]) {
         await deleteNotebookFromFirestore(notebook.id);
       }
       
@@ -1910,7 +2040,8 @@
 
     // CREATE NOTEBOOK
     async function createNotebook() {
-      if (!currentUser) {
+      // Use auth.currentUser for immediate latest auth state
+      if (!auth.currentUser) {
         alert('⚠️ Please login to create notes');
         loginModal.style.display = 'flex';
         return;
@@ -1921,25 +2052,38 @@
 
       const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
       const notebook = {
-        id: Date.now().toString(),
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
         title: title,
         emoji: emoji,
         content: '',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         favorite: false,
-        trash: false
+        trash: false,
+        theme: 'blank'
       };
 
-      const saved = await saveNotebookToFirestore(notebook);
+      const saved = await saveNotebookToFirestore(notebook, true);
       if (saved) {
-        notebooks.push(notebook);
-        addNotebookCard(notebook);
+        // prefer refreshing from server to keep canonical ordering and fields
+        await loadNotebooks();
         openNote(notebook.id);
       }
     }
 
-    document.getElementById('create-new').onclick = createNotebook;
-    document.getElementById('new-note-btn').onclick = createNotebook;
+    // Always ensure create-new is responsive
+    const createNewEl = document.getElementById('create-new');
+    if (createNewEl) {
+      createNewEl.onclick = createNotebook;
+      createNewEl.onkeypress = (e) => { if (e.key === 'Enter') createNotebook(); };
+    }
+    document.getElementById('new-note-btn').onclick = () => {
+      // If user isn't signed in direct them to login modal
+      if (!auth.currentUser) {
+        loginModal.style.display = 'flex';
+        return;
+      }
+      createNotebook();
+    };
 
     // EDITOR
     const homePage = document.querySelector('.home-page');
@@ -1950,6 +2094,7 @@
     const textEditor = document.getElementById('text-editor');
     const saveStatus = document.getElementById('save-status');
     const saveText = document.getElementById('save-text');
+    const editorContent = document.getElementById('editor-content');
 
     function openNote(noteId) {
       const notebook = [...notebooks, ...trashedNotebooks].find(n => n.id === noteId);
@@ -1963,6 +2108,9 @@
       currentNoteId = noteId;
       noteTitleEditor.value = notebook.title;
       textEditor.innerHTML = notebook.content || 'Start writing your notes here...';
+
+      // Apply per-note paper style
+      applyEditorPaper(notebook.theme || 'blank');
 
       homePage.classList.add('hidden');
       editorPage.classList.add('active');
@@ -1978,14 +2126,16 @@
     }
 
     async function saveNote() {
-      if (!currentNoteId || !currentUser) return;
+      if (!currentNoteId || !auth.currentUser) return;
 
       const notebook = notebooks.find(n => n.id === currentNoteId);
       if (notebook) {
         notebook.title = noteTitleEditor.value || 'Untitled Note';
         notebook.content = textEditor.innerHTML;
         notebook.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        
+        // ensure theme is kept
+        notebook.theme = notebook.theme || 'blank';
+
         const saved = await saveNotebookToFirestore(notebook);
         if (saved) {
           renderNotebooks();
@@ -1999,8 +2149,9 @@
       }
     }
 
+    // Auto-save
     setInterval(() => {
-      if (currentNoteId && currentUser) {
+      if (currentNoteId && auth.currentUser) {
         saveNote();
       }
     }, 10000);
@@ -2009,6 +2160,71 @@
     saveBtn.onclick = saveNote;
     noteTitleEditor.addEventListener('blur', saveNote);
     document.getElementById('logo-home').onclick = () => window.scrollTo(0, 0);
+
+    // PAPER (GoodNotes-like) UI & logic
+    const paperBtn = document.getElementById('paper-btn');
+    const paperMenu = document.getElementById('paper-menu');
+
+    function openPaperMenu() {
+      paperMenu.classList.add('open');
+      paperMenu.setAttribute('aria-hidden', 'false');
+    }
+    function closePaperMenu() {
+      paperMenu.classList.remove('open');
+      paperMenu.setAttribute('aria-hidden', 'true');
+    }
+
+    paperBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (paperMenu.classList.contains('open')) closePaperMenu();
+      else openPaperMenu();
+    });
+
+    // close paper menu when clicking elsewhere
+    document.addEventListener('click', (e) => {
+      if (!paperMenu.contains(e.target) && e.target !== paperBtn) {
+        closePaperMenu();
+      }
+    });
+
+    paperMenu.querySelectorAll('.paper-option').forEach(opt => {
+      opt.onclick = async (e) => {
+        const selected = opt.dataset.paper;
+        applyEditorPaper(selected);
+        // persist to current notebook if open
+        if (currentNoteId) {
+          const notebook = notebooks.find(n => n.id === currentNoteId);
+          if (notebook) {
+            notebook.theme = selected;
+            await saveNotebookToFirestore(notebook);
+            renderNotebooks();
+          }
+        }
+        closePaperMenu();
+      };
+    });
+
+    function applyEditorPaper(style) {
+      // remove existing paper classes
+      editorContent.classList.remove('editor-paper-blank','editor-paper-lined','editor-paper-ruled','editor-paper-grid','editor-paper-sepia','editor-paper-dark');
+      switch (style) {
+        case 'lined':
+          editorContent.classList.add('editor-paper-lined'); break;
+        case 'ruled':
+          editorContent.classList.add('editor-paper-ruled'); break;
+        case 'grid':
+          editorContent.classList.add('editor-paper-grid'); break;
+        case 'sepia':
+          editorContent.classList.add('editor-paper-sepia'); break;
+        case 'dark':
+          editorContent.classList.add('editor-paper-dark'); break;
+        default:
+          editorContent.classList.add('editor-paper-blank');
+      }
+      // ensure text-editor color respects the applied style
+      // (text-editor uses current color; some paper themes change parent color)
+      // Save a class on editor page for visual feedback if needed
+    }
 
     // AUTHENTICATION
     onAuthStateChanged(auth, async (user) => {
@@ -2020,8 +2236,8 @@
       
       if (user) {
         currentUser = user;
-        userName.textContent = user.displayName || user.email.split('@')[0];
-        userEmail.textContent = user.email;
+        userName.textContent = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        userEmail.textContent = user.email || '';
         logoutBtn.style.display = 'block';
         deleteAccountBtn.style.display = 'block';
         loginSettingsBtn.style.display = 'none';
@@ -2039,7 +2255,7 @@
         trashedNotebooks = [];
         renderNotebooks();
         
-        // Show login modal for new users
+        // Show login modal for new users (only once)
         setTimeout(() => {
           if (!localStorage.getItem('hasVisited')) {
             loginModal.style.display = 'flex';
@@ -2060,7 +2276,7 @@
         await signInWithPopup(auth, new GoogleAuthProvider());
         closeAllModals();
       } catch (error) {
-        alert('❌ Login failed: ' + error.message);
+        alert('❌ Login failed: ' + (error.message || error));
       }
     };
 
@@ -2070,7 +2286,7 @@
         await signInWithPopup(auth, provider);
         closeAllModals();
       } catch (error) {
-        alert('❌ Login failed: ' + error.message);
+        alert('❌ Login failed: ' + (error.message || error));
       }
     };
 
@@ -2091,7 +2307,7 @@
         document.getElementById('email-form').reset();
         errorDiv.style.display = 'none';
       } catch (error) {
-        errorDiv.textContent = error.message;
+        errorDiv.textContent = error.message || error;
         errorDiv.style.display = 'block';
       }
     };
@@ -2119,7 +2335,7 @@
         document.getElementById('email-form').reset();
         errorDiv.style.display = 'none';
       } catch (error) {
-        errorDiv.textContent = error.message;
+        errorDiv.textContent = error.message || error;
         errorDiv.style.display = 'block';
       }
     };
@@ -2132,7 +2348,7 @@
           closeAllModals();
           alert('✅ Logged out successfully');
         } catch (error) {
-          alert('❌ Error logging out: ' + error.message);
+          alert('❌ Error logging out: ' + (error.message || error));
         }
       }
     };
@@ -2162,7 +2378,7 @@
             closeAllModals();
           }
         } else {
-          alert('❌ Error: ' + error.message);
+          alert('❌ Error: ' + (error.message || error));
         }
       }
     };
@@ -2203,13 +2419,16 @@
 
             for (const note of importedNotes) {
               note.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-              await saveNotebookToFirestore(note);
+              note.favorite = !!note.favorite;
+              note.trash = !!note.trash;
+              note.theme = note.theme || 'blank';
+              await saveNotebookToFirestore(note, true);
             }
 
             await loadNotebooks();
             alert(`✅ Imported ${importedNotes.length} notes successfully!`);
           } catch (error) {
-            alert('❌ Error importing notes: ' + error.message);
+            alert('❌ Error importing notes: ' + (error.message || error));
           }
         };
         reader.readAsText(file);
@@ -2217,8 +2436,20 @@
       input.click();
     };
 
-    // Initialize
+    // Utilities
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    // Initialize UI
     renderTemplates();
+    renderNotebooks(); // ensure create-new remains wired
   </script>
 </body>
 </html>
