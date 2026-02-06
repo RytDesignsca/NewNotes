@@ -1284,7 +1284,9 @@
   </div>
 
   <script type="module">
+    // Use CDN modular imports (works in browser without bundler)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-analytics.js";
     import {
       getAuth,
       GoogleAuthProvider,
@@ -1311,17 +1313,28 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-    // ⚠️ REPLACE THIS WITH YOUR FIREBASE CONFIG
+    // Firebase config (from your snippet)
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY_HERE",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyCirWobFVvTyc4ALEw3XMWBCCZlEP3s048",
+      authDomain: "newnotes-6942f.firebaseapp.com",
+      projectId: "newnotes-6942f",
+      storageBucket: "newnotes-6942f.firebasestorage.app",
+      messagingSenderId: "108980754671",
+      appId: "1:108980754671:web:f584d61feffc9e438aa31a",
+      measurementId: "G-P8KVQS62FB"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
+
+    // Initialize Analytics (optional) — wrapped in try/catch for environments where analytics isn't available
+    try {
+      const analytics = getAnalytics(app);
+      console.log('Firebase Analytics initialized');
+    } catch (err) {
+      console.warn('Analytics not available:', err && err.message ? err.message : err);
+    }
+
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -1452,7 +1465,7 @@
 <h3>📋 Milestones</h3>
 <ol><li>_____ (Due: _____)</li><li>_____ (Due: _____)</li><li>_____ (Due: _____)</li></ol>
 <h3>✅ Task List</h3>
-<ul><li>[ ] _____</li><li>[ ] _____</li><li>[ ] _____</li></ul>
+<ul><li>[ ] _____</li><li>_____</li><li>_____</li></ul>
 <h3>💡 Ideas & Notes</h3>
 <p>_____</p>
 <h3>📊 Progress</h3>
