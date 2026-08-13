@@ -1,7 +1,7 @@
-
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>New Notes</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
@@ -305,6 +305,16 @@
       box-shadow: 0 4px 15px var(--shadow);
       transition: all 0.3s ease;
       border-left: 5px solid;
+      cursor: pointer;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .template-card .template-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
     }
     
     .template-card:nth-child(1) { border-color: var(--accent-pink); }
@@ -317,11 +327,6 @@
     .template-card:hover {
       transform: translateX(10px);
       box-shadow: 0 6px 25px var(--shadow);
-    }
-    
-    .template-emoji {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
     }
     
     .template-title {
@@ -764,38 +769,38 @@
         <h2 class="section-title">
           <span>🎨</span> Popular Templates
         </h2>
-        <div class="template-grid">
-          <div class="template-card">
+        <div class="template-grid" id="template-grid">
+          <div class="template-card" data-template="daily-planner">
             <div class="template-emoji">📅</div>
             <h3 class="template-title">Daily Planner</h3>
             <p class="template-desc">Organize your day with time blocks, goals, and priorities.</p>
           </div>
 
-          <div class="template-card">
+          <div class="template-card" data-template="bullet-journal">
             <div class="template-emoji">✅</div>
             <h3 class="template-title">Bullet Journal</h3>
             <p class="template-desc">Track habits, moods, and reflections in a creative way.</p>
           </div>
 
-          <div class="template-card">
+          <div class="template-card" data-template="study-notes">
             <div class="template-emoji">📚</div>
             <h3 class="template-title">Study Notes</h3>
             <p class="template-desc">Cornell notes with cue columns and summary sections.</p>
           </div>
 
-          <div class="template-card">
+          <div class="template-card" data-template="budget-tracker">
             <div class="template-emoji">💰</div>
             <h3 class="template-title">Budget Tracker</h3>
             <p class="template-desc">Monitor income, expenses, and savings goals.</p>
           </div>
 
-          <div class="template-card">
+          <div class="template-card" data-template="fitness-plan">
             <div class="template-emoji">🏃</div>
             <h3 class="template-title">Fitness Plan</h3>
             <p class="template-desc">Plan workouts, meals, and track your progress.</p>
           </div>
 
-          <div class="template-card">
+          <div class="template-card" data-template="blank-canvas">
             <div class="template-emoji">✏️</div>
             <h3 class="template-title">Blank Canvas</h3>
             <p class="template-desc">Freeform notes, sketches, and creative writing.</p>
@@ -981,11 +986,114 @@
     let notebooks = JSON.parse(localStorage.getItem('notebooks')) || [];
     let currentNoteId = null;
 
+    // Template definitions
+    const templates = {
+      'daily-planner': {
+        title: 'Daily Planner',
+        emoji: '📅',
+        content: `
+          <h2>Daily Planner</h2>
+          <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+          <h3>Top priorities</h3>
+          <ul><li></li><li></li><li></li></ul>
+          <h3>Schedule</h3>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="width:25%;padding:6px;border:1px solid #e6e6e6;">6:00 - 8:00</td><td style="padding:6px;border:1px solid #e6e6e6;"></td></tr>
+            <tr><td style="padding:6px;border:1px solid #e6e6e6;">8:00 - 10:00</td><td style="padding:6px;border:1px solid #e6e6e6;"></td></tr>
+            <tr><td style="padding:6px;border:1px solid #e6e6e6;">10:00 - 12:00</td><td style="padding:6px;border:1px solid #e6e6e6;"></td></tr>
+            <tr><td style="padding:6px;border:1px solid #e6e6e6;">12:00 - 14:00</td><td style="padding:6px;border:1px solid #e6e6e6;"></td></tr>
+          </table>
+          <h3>Notes</h3><p></p>
+        `
+      },
+      'bullet-journal': {
+        title: 'Bullet Journal',
+        emoji: '✅',
+        content: `
+          <h2>Bullet Journal</h2>
+          <h3>Daily Log</h3>
+          <ul><li></li></ul>
+          <h3>Tasks</h3>
+          <ul><li>[ ] </li></ul>
+          <h3>Habits</h3>
+          <p>☐ Exercise ☐ Read ☐ Meditate ☐ Sleep by 11pm</p>
+          <h3>Reflection</h3>
+          <p></p>
+        `
+      },
+      'study-notes': {
+        title: 'Study Notes (Cornell)',
+        emoji: '📚',
+        content: `
+          <h2>Study Notes</h2>
+          <p><em>Course / Topic:</em></p>
+          <div style="display:flex;gap:1rem;">
+            <div style="flex:1;">
+              <h3>Notes</h3>
+              <p></p>
+            </div>
+            <div style="width:200px;">
+              <h3>Cues</h3>
+              <p></p>
+            </div>
+          </div>
+          <h3>Summary</h3>
+          <p></p>
+        `
+      },
+      'budget-tracker': {
+        title: 'Budget Tracker',
+        emoji: '💰',
+        content: `
+          <h2>Budget Tracker</h2>
+          <p><strong>Month:</strong> ${new Date().toLocaleString('en-US', {month:'long', year:'numeric'})}</p>
+          <h3>Income</h3>
+          <ul><li>Source: <strong>$0.00</strong></li></ul>
+          <h3>Expenses</h3>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr><th style="text-align:left;border-bottom:1px solid #ddd;padding:6px;">Item</th><th style="text-align:right;border-bottom:1px solid #ddd;padding:6px;">Amount</th></tr></thead>
+            <tbody>
+            <tr><td style="padding:6px;border-bottom:1px solid #f1f1f1;">Rent</td><td style="padding:6px;text-align:right;border-bottom:1px solid #f1f1f1;">$0.00</td></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #f1f1f1;">Groceries</td><td style="padding:6px;text-align:right;border-bottom:1px solid #f1f1f1;">$0.00</td></tr>
+            </tbody>
+          </table>
+          <h3>Savings Goals</h3><p></p>
+        `
+      },
+      'fitness-plan': {
+        title: 'Fitness Plan',
+        emoji: '🏃',
+        content: `
+          <h2>Fitness Plan</h2>
+          <h3>Weekly Schedule</h3>
+          <ul>
+            <li>Monday: Strength</li>
+            <li>Tuesday: Cardio</li>
+            <li>Wednesday: Rest/Stretch</li>
+            <li>Thursday: Strength</li>
+            <li>Friday: Cardio</li>
+            <li>Saturday: Active Recovery</li>
+            <li>Sunday: Rest</li>
+          </ul>
+          <h3>Meals</h3>
+          <p>Breakfast: <br/>Lunch: <br/>Dinner: </p>
+          <h3>Goals</h3><p></p>
+          <h3>Progress</h3><p></p>
+        `
+      },
+      'blank-canvas': {
+        title: 'Blank Canvas',
+        emoji: '✏️',
+        content: `<h2>Blank Canvas</h2><p></p>`
+      }
+    };
+
     // Load all notebooks on page load
     function loadNotebooks() {
       const notebookGrid = document.getElementById('notebook-grid');
       // Clear existing notebooks (keep create button)
       const createCard = document.getElementById('create-new');
+      // keep a reference to createCard and re-append it
       notebookGrid.innerHTML = '';
       notebookGrid.appendChild(createCard);
 
@@ -1073,6 +1181,38 @@
       // Open the new note immediately
       openNote(notebook.id);
     }
+
+    // Create notebook from template
+    function createNotebookFromTemplate(templateKey) {
+      const t = templates[templateKey];
+      if (!t) return;
+      const notebook = {
+        id: Date.now().toString(),
+        title: t.title,
+        emoji: t.emoji,
+        content: t.content,
+        date: new Date().toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })
+      };
+      notebooks.push(notebook);
+      saveNotebooks();
+      loadNotebooks();
+      // Open the new notebook in the editor
+      openNote(notebook.id);
+    }
+
+    // Wire template cards
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.template-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const key = card.dataset.template;
+          createNotebookFromTemplate(key);
+        });
+      });
+    });
 
     // Create notebook event listeners
     document.getElementById('create-new').onclick = createNotebook;
